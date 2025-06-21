@@ -1,9 +1,38 @@
-import { StyleSheet, Text, View, ScrollView, Image,TouchableOpacity, Pressable } from 'react-native';
-import React from 'react';
-import { useLayoutEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Pressable } from 'react-native';
+import React, { useLayoutEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import AntDesign from 'react-native-vector-icons/AntDesign';
+ const data = [
+    {
+      id: '10',
+      image:
+        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/Tennis%20Spotlight.png',
+      text: 'Learn Tennis',
+      description: 'Know more',
+    },
+    {
+      id: '11',
+      image:
+        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_08.png',
+      text: 'Up Your Game',
+      description: 'Find a coach',
+    },
+    {
+      id: '12',
+      image:
+        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_03.png',
+      text: 'Hacks to win',
+      description: 'Yes, Please!',
+    },
+    {
+      id: '13',
+      image:
+        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_02.png',
+      text: 'Spotify Playolist',
+      description: 'Show more',
+    },
+  ];
 const HomeScreen = () => {
   const navigation = useNavigation();
   useLayoutEffect(() => {
@@ -14,36 +43,38 @@ const HomeScreen = () => {
           <Text>Mohali</Text>
         </View>
       ),
-      headerRight: () => (
-        <HeaderRight />
-      ),
+      headerRight: () => <HeaderRight />,
     });
-  });
+  }, [navigation]);
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F8F8F8' }}>
       <View style={styles.container}>
         <FitnessGoalCard />
         <GameAvailableSection />
-        <CorouselSection/>
+        <CorouselSection />
+        <BottomSection />
+        <SpotlightSection />
       </View>
-      
     </ScrollView>
   );
 };
+
 const HeaderRight = () => (
   <View style={{ marginRight: 10, flexDirection: 'row', gap: 10 }}>
     <Ionicons name="chatbox-outline" size={24} color="black" />
     <Ionicons name="notifications-outline" size={24} color="black" />
     <Pressable>
-    <Image
-      source={{
-        uri: 'https://cdn-icons-png.flaticon.com/128/4140/4140048.png',
-      }}
-      style={{ width: 24, height: 24, borderRadius: 15 }}
-    />
+      <Image
+        source={{
+          uri: 'https://cdn-icons-png.flaticon.com/128/4140/4140048.png',
+        }}
+        style={{ width: 24, height: 24, borderRadius: 15 }}
+      />
     </Pressable>
   </View>
 );
+
 const FitnessGoalCard = () => (
   <View style={styles.rowContainer}>
     <Image
@@ -56,6 +87,7 @@ const FitnessGoalCard = () => (
     </View>
   </View>
 );
+
 const GameAvailableSection = () => (
   <View style={styles.columnContainer}>
     <Text style={styles.textGreyBackground}>GEAR UP FOR YOUR GAME</Text>
@@ -66,68 +98,135 @@ const GameAvailableSection = () => (
       </TouchableOpacity>
     </View>
     <Text style={styles.greyText}>You have not games today</Text>
-        <Text style={styles.underLineText}>View My Calendar</Text>
+    <Text style={styles.underLineText}>View My Calendar</Text>
   </View>
 );
 
 const CorouselSection = () => (
-  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
-  {/* Card 1 - Play */}
-  <Pressable style={{ width: 180 }}>
-    <View style={{ borderRadius: 10, overflow: 'hidden' }}>
-      <Image
-        source={{
-          uri: 'https://images.pexels.com/photos/262524/pexels-photo-262524.jpeg?auto=compress&cs=tinysrgb&w=800',
-        }}
-        style={styles.corouselImage}
-        resizeMode="cover"
-      />
-    </View>
-    <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
-      <Text style={{ fontWeight: 'bold' }}>Play</Text>
-      <Text>Find Players and join their activities</Text>
-    </View>
-  </Pressable>
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 ,marginTop: 10}}>
+    <Pressable style={{ width: 180 }}>
+      <View style={{ borderRadius: 10, overflow: 'hidden' }}>
+        <Image
+          source={{
+            uri: 'https://images.pexels.com/photos/262524/pexels-photo-262524.jpeg?auto=compress&cs=tinysrgb&w=800',
+          }}
+          style={styles.corouselImage}
+          resizeMode="cover"
+        />
+      </View>
+      <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
+        <Text style={{ fontWeight: 'bold' }}>Play</Text>
+        <Text>Find Players and join their activities</Text>
+      </View>
+    </Pressable>
 
-  {/* Card 2 - Book */}
-  <Pressable style={{ width: 180 }}>
-    <View style={{ borderRadius: 10, overflow: 'hidden' }}>
-      <Image
-        source={{
-          uri: 'https://images.pexels.com/photos/2529383/pexels-photo-2529383.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop&dpr=2',
-        }}
-        style={styles.corouselImage}
-        resizeMode="cover"
-      />
+    <Pressable style={{ width: 180 }}>
+      <View style={{ borderRadius: 10, overflow: 'hidden' }}>
+        <Image
+          source={{
+            uri: 'https://images.pexels.com/photos/2529383/pexels-photo-2529383.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop&dpr=2',
+          }}
+          style={styles.corouselImage}
+          resizeMode="cover"
+        />
+      </View>
+      <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
+        <Text style={{ fontWeight: 'bold' }}>Book</Text>
+        <Text>Book your slots in nearby venues</Text>
+      </View>
+    </Pressable>
+  </View>
+);
+
+const BottomSection = () => (
+  <View style={[styles.bottomColumnContainer,{marginTop: 10,marginRight: 20}]}>
+  <View style={styles.bottomRowContainer}>
+    <View style={styles.iconCircle}>
+    <AntDesign name="addusergroup" size={24} color="green" />
     </View>
-    <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
-      <Text style={{ fontWeight: 'bold' }}>Book</Text>
-      <Text>Book your slots in nearby venues</Text>
+    <View style={styles.bottomColumnContainer}>
+      <Text style={[styles.boldText, { marginLeft: 10 }]}>Groups</Text>
+      <Text style={[styles.subText, { marginLeft: 10 }]}>Connect, Compete and Discuss</Text>
     </View>
-  </Pressable>
+  </View>
+
+  <View style={styles.bottomRowContainer}>
+    <View style={styles.iconCircle2}>
+     <Ionicons name="tennisball-outline" size={24} color="black" />
+    </View>
+    <View flexDirection="column" style={styles.bottomColumnContainer}>
+      <Text style={[styles.boldText, { marginLeft: 10 }]}>Game Time Activities</Text>
+      <Text style={[styles.subText, { marginLeft: 10 }]}>355 Playwood Hosted Games</Text>
+    </View>
+  </View>
+  </View>
+);
+
+const SpotlightSection =() => (
+  <View style={{padding:1}}>
+  <View style={{padding:10,backgroundColor:"white",borderRadius:10}}>
+  <Text style={{fontSize:16,fontWeight:"500",color:"#000",marginTop:10}}>Spotlight</Text>
 </View>
+  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
+   {data.map((item) => (
+  <Pressable key={item.id} style={{ marginBottom: 10 }}>
+    <Image
+      source={{ uri: item.image }}
+      style={styles.corouselImage}
+      resizeMode="cover"
+    />
+    <Text style={{ fontWeight: 'bold', marginTop: 5 }}>{item.text}</Text>
+    <Text>{item.description}</Text>
+  </Pressable>
+))}
 
+  </ScrollView>
+  </View>
 );
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    justifyContent: 'left',
+    justifyContent: 'flex-start',
     height: '100%',
-    alignItems: 'left',
+    alignItems: 'flex-start',
     backgroundColor: '#F8F8F8',
     padding: 15,
   },
-  rowContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 10
-  },
+ rowContainer: {
+  width: '100%',               
+  backgroundColor: '#FFFFFF',
+  borderRadius: 10,
+  flexDirection: 'row',
+  justifyContent: 'space-between', 
+  alignItems: 'center',            
+  marginBottom: 10,
+  paddingHorizontal: 10,          
+  paddingVertical: 6,             
+},
+  bottomRowContainer: {
+  width: '100%',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 10,
+  flexDirection: 'row',
+  justifyContent: 'space-between', 
+  alignItems: 'center',
+  marginHorizontal: 10,
+  marginVertical: 10,
+},
   columnContainer: {
+  flex: 1,                  
+  width: '100%',            
+  justifyContent: 'center',
+  alignItems: 'flex-start',  
+  backgroundColor: '#FFFFFF',
+  padding: 10,
+  borderRadius: 10,
+},
+   bottomColumnContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
     justifyContent: 'center',
-    alignItems: 'left',
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
     padding: 10,
@@ -137,7 +236,7 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 20,
-    marginLeft: 10
+    marginLeft: 10,
   },
   textHeading: {
     fontSize: 16,
@@ -147,52 +246,54 @@ const styles = StyleSheet.create({
   subText: {
     fontSize: 14,
     color: '#666',
-    marginTop: 5
+    marginTop: 5,
   },
-  textGreyBackground:{
+  textGreyBackground: {
     fontSize: 12,
     color: '#000',
     backgroundColor: '#dddddd',
     paddingLeft: 10,
-    width:'50%',
+    width: '50%',
     paddingRight: 10,
     paddingTop: 5,
     paddingBottom: 5,
     borderRadius: 5,
-    marginTop: 10
+    marginTop: 10,
   },
   boldText: {
-  fontSize: 15,
-  color: '#000',
-  fontWeight: 'bold',
-  lineHeight: 20,
-  marginTop: 4,
-  marginBottom: 1
-},
-greyText: {
-  fontSize: 13,
-  color: '#666',
-  fontWeight: 'normal',
-  marginTop: -5
-},
-corouselImage: {
-  width: '100%',
-  height: 120,
-  borderRadius: 10
-},
-  viewButton:{
-        backgroundColor: '#ffffff',
-        paddingTop: 8,
-        paddingRight: 15,
-        paddingBottom: 8,
-        paddingLeft: 15,
-        borderRadius: 5,
-        marginLeft: 'auto',
-        shadowColor: '#000',
-        marginRight: 10,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84
+    fontSize: 15,
+    color: '#000',
+    fontWeight: 'bold',
+    lineHeight: 20,
+    marginTop: 4,
+    marginBottom: 1,
+  },
+  greyText: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: 'normal',
+    marginTop: -5,
+  },
+  corouselImage: {
+    width: 180,
+    height: 140,
+    borderRadius: 10,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  viewButton: {
+    backgroundColor: '#ffffff',
+    paddingTop: 8,
+    paddingRight: 15,
+    paddingBottom: 8,
+    paddingLeft: 15,
+    borderRadius: 5,
+    marginLeft: 'auto',
+    shadowColor: '#000',
+    marginRight: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   underLineText: {
     textDecorationLine: 'underline',
@@ -201,14 +302,24 @@ corouselImage: {
     marginTop: 15,
     paddingBottom: 10,
     color: '#000',
-    textAlign: 'center'
+    textAlign: 'center',
   },
-    corouselImage: {
-    width: 180,
-    height: 140,
-    borderRadius: 10,
-    marginRight: 10,
-    marginBottom: 10,
-  },
+  iconCircle: {
+  width: 50,
+  height: 50,
+  borderRadius: 20,             
+  backgroundColor: '#D4EDDA',  
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+iconCircle2: {
+  width: 50,
+  height: 50,
+  borderRadius: 20,             
+  backgroundColor: 'yellow',  
+  justifyContent: 'center',
+  alignItems: 'center',
+}
 });
+
 export default HomeScreen;
