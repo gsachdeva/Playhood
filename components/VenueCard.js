@@ -53,7 +53,7 @@ const VenueCard = ({ item }) => {
                 paddingLeft: 10,
                 paddingRight: 10,
                 color: '#666',
-                fontSize: 13,
+                fontSize: 13
                 }}
             >
              <Text style={{ marginTop: 6, color: 'green' }}>Starting at ₹{minPrice}</Text>
@@ -64,7 +64,7 @@ const VenueCard = ({ item }) => {
                 paddingLeft: 10,
                 paddingRight: 10,
                 color: '#666',
-                fontSize: 13,
+                fontSize: 13
                 }}
             >
                 {item.timings}
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 15
   },
   address: {
     color: '#666',

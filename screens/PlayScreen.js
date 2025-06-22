@@ -5,6 +5,8 @@ import {
   Pressable,
   TouchableOpacity,
   Image,
+  StatusBar,
+  Platform,
   ScrollView,
 } from 'react-native';
 import React from 'react';
@@ -18,7 +20,13 @@ const PlayScreen = () => {
     const [sports,setSports]=useState("Badminton");
 
   return (
-    <SafeAreaView>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+        backgroundColor: '#ffffff',
+      }}
+    >
       <View
         style={{
           backgroundColor: '#223536',
@@ -33,7 +41,7 @@ const PlayScreen = () => {
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-            <Text style={{ color: '#ffffff', fontSize: '17' }}>Mohali</Text>
+            <Text style={{ color: '#ffffff', fontSize: 17 }}>Mohali</Text>
             <Ionicons name="chevron-down" size={18} color="white" />
           </View>
           <View style={{ marginRight: 10, flexDirection: 'row', gap: 10 }}>

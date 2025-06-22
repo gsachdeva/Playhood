@@ -7,6 +7,8 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  StatusBar,
+  Platform,
   FlatList,
 } from 'react-native';
 import React from 'react';
@@ -18,7 +20,10 @@ import VenueCard from '../components/VenueCard';
 const BookScreen = () => {
   const [topsection, setTopSection] = React.useState('');
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }}>
+    <SafeAreaView 
+    style={{ flex: 1, 
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: '#ffffff' }}>
       <View
         style={{
           flex: 1,
@@ -37,7 +42,7 @@ const BookScreen = () => {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
             <Text
-              style={{ color: '#000000', fontSize: '15', fontWeight: 'bold' }}
+              style={{ color: '#000000', fontSize: 15, fontWeight: 'bold' }}
             >
               Mohali
             </Text>
