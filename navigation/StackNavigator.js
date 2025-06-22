@@ -10,6 +10,7 @@ import HomeScreen from '../screens/HomeScreen';
 import BookScreen from '../screens/BookScreen';
 import PlayScreen from '../screens/PlayScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import VenueInfoScreen from '../screens/VenueInfoScreen';
 
 
 const StackNavigator = () => {
@@ -98,6 +99,10 @@ const Tab = createBottomTabNavigator();
                  component={BottomTabs}
                  options={{ headerShown: false }}
                  />
+                <Stack.Screen name="VenueInfoScreen" 
+                component={VenueInfoScreen} 
+                options={{headerShown: false }}/>
+
             </Stack.Navigator>
         )
     }
