@@ -12,105 +12,154 @@ import PlayScreen from '../screens/PlayScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import VenueInfoScreen from '../screens/VenueInfoScreen';
 
+import StartScreen from '../screens/StartScreen';
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import PasswordScreen from '../screens/PasswordScreen';
+import OtpScreen from '../screens/OtpScreen';
+import NameScreen from '../screens/NameScreen';
+import SelectImage from '../screens/SelectImage';
+import PreFinalScreen from '../screens/PrefinalScreen';
 
 const StackNavigator = () => {
-const Stack = createNativeStackNavigator(); 
-const Tab = createBottomTabNavigator();
-    function BottomTabs() {
-        return (
-            <Tab.Navigator>
-                <Tab.Screen
-                    name="Home"
-                    component={HomeScreen}
-                    options={{
-                        tabBarActiveTintColor: 'green',
-                        tabBarInactiveTintColor: 'gray',
-                        tabBarLabel: 'Home',
-                        tabBarIcon: ({ focused }) =>
-                            focused ? (
-                                <Ionicons name="home" size={24} color="green" />
-                            ) : (
-                                <Ionicons name="home-outline" size={24} color="gray" />
-                            ),
-                    }}
-                />
-                <Tab.Screen
-                    name="Play"
-                    component={PlayScreen}
-                    options={{
-                        tabBarActiveTintColor: 'green',
-                        tabBarInactiveTintColor: 'gray',
-                        tabBarLabel: 'Play',
-                        headerShown: false,
-                        tabBarIcon: ({ focused }) =>
-                            focused ? (
-                                <AntDesign name="addusergroup" size={24} color="green" />
-                            ) : (
-                                <AntDesign name="addusergroup" size={24} color="gray" />
-                            ),
-                    }}
-                />
-                <Tab.Screen
-                    name="Book"
-                    component={BookScreen}
-                    options={{
-                        tabBarActiveTintColor: 'green',
-                        tabBarInactiveTintColor: 'gray',
-                        tabBarLabel: 'Book',
-                        headerShown: false,
-                        tabBarIcon: ({ focused }) =>
-                            focused ? (
-                                <SimpleLineIcons name="book-open" size={24} color="green" />
-                            ) : (
-                                <SimpleLineIcons name="book-open" size={24} color="gray" />
-                            ),
-                    }}
-                />
-                <Tab.Screen
-                    name="Profile"
-                    component={ProfileScreen}
-                    options={{
-                        tabBarActiveTintColor: 'green',
-                        tabBarInactiveTintColor: 'gray',
-                        tabBarLabel: 'Profile',
-                        headerShown: false,
-                        tabBarIcon: ({ focused }) =>
-                            focused ? (
-                                <Ionicons name="person" size={24} color="green" />
-                            ) : (
-                                <Ionicons name="person-outline" size={24} color="gray" />
-                            ),
-                    }}
-                />
-            </Tab.Navigator>
-        )
-    }
-    const AuthStack =() =>{
-        return(
-            <Stack.Navigator>
-
-            </Stack.Navigator>
-        )
-    }
-    function MainStack(){
-        return(
-            <Stack.Navigator>
-                <Stack.Screen name="Main"
-                 component={BottomTabs}
-                 options={{ headerShown: false }}
-                 />
-                <Stack.Screen name="VenueInfoScreen" 
-                component={VenueInfoScreen} 
-                options={{headerShown: false }}/>
-
-            </Stack.Navigator>
-        )
-    }
+  const Stack = createNativeStackNavigator();
+  const Tab = createBottomTabNavigator();
+  function BottomTabs() {
     return (
-       <NavigationContainer>
-            <MainStack/>
-        </NavigationContainer>
+      <Tab.Navigator>
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarActiveTintColor: 'green',
+            tabBarInactiveTintColor: 'gray',
+            tabBarLabel: 'Home',
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="home" size={24} color="green" />
+              ) : (
+                <Ionicons name="home-outline" size={24} color="gray" />
+              ),
+          }}
+        />
+        <Tab.Screen
+          name="Play"
+          component={PlayScreen}
+          options={{
+            tabBarActiveTintColor: 'green',
+            tabBarInactiveTintColor: 'gray',
+            tabBarLabel: 'Play',
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <AntDesign name="addusergroup" size={24} color="green" />
+              ) : (
+                <AntDesign name="addusergroup" size={24} color="gray" />
+              ),
+          }}
+        />
+        <Tab.Screen
+          name="Book"
+          component={BookScreen}
+          options={{
+            tabBarActiveTintColor: 'green',
+            tabBarInactiveTintColor: 'gray',
+            tabBarLabel: 'Book',
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <SimpleLineIcons name="book-open" size={24} color="green" />
+              ) : (
+                <SimpleLineIcons name="book-open" size={24} color="gray" />
+              ),
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            tabBarActiveTintColor: 'green',
+            tabBarInactiveTintColor: 'gray',
+            tabBarLabel: 'Profile',
+            headerShown: false,
+            tabBarIcon: ({ focused }) =>
+              focused ? (
+                <Ionicons name="person" size={24} color="green" />
+              ) : (
+                <Ionicons name="person-outline" size={24} color="gray" />
+              ),
+          }}
+        />
+      </Tab.Navigator>
     );
+  }
+  const AuthStack = () => {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Start"
+          component={StartScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Password"
+          component={PasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Otp"
+          component={OtpScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Name"
+          component={NameScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Image"
+          component={SelectImage}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="PreFinal"
+          component={PreFinalScreen}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    );
+  };
+  function MainStack() {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Main"
+          component={BottomTabs}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="VenueInfoScreen"
+          component={VenueInfoScreen}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    );
+  }
+  return (
+    <NavigationContainer>
+      <MainStack />
+    </NavigationContainer>
+  );
 };
 
 export default StackNavigator;

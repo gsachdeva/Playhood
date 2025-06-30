@@ -1,6 +1,7 @@
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import StackNavigator from './navigation/StackNavigator';
 
+
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
