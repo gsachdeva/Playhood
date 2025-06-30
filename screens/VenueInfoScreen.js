@@ -30,7 +30,7 @@ const VenueInfoScreen = () => {
 
   return (
     <>
-    {/* SafeAreaView to avoid notches and status bar overlap */}
+    {}
     <SafeAreaView style={styles.safeArea}>
       <ScrollView>
       <View style={styles.container}>
@@ -210,7 +210,8 @@ const VenueInfoScreen = () => {
       </Pressable>
       </>
   );
-};
+}; 
+
 
 export default VenueInfoScreen;
 
