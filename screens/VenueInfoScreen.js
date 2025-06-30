@@ -14,8 +14,9 @@ import { useRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ameneties from '../components/Ameneties'; 
+import Ameneties from '../components/Ameneties';
 import { useNavigation } from '@react-navigation/native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const VenueInfoScreen = () => {
   const route = useRoute();
@@ -28,7 +29,10 @@ const VenueInfoScreen = () => {
   const rating = venue?.rating; // Assuming rating is a number
 
   return (
+    <>
+    {}
     <SafeAreaView style={styles.safeArea}>
+      <ScrollView>
       <View style={styles.container}>
         <Image
           source={{
@@ -153,15 +157,41 @@ const VenueInfoScreen = () => {
               </View>
             ))}
           </ScrollView>
-         <Ameneties />
+          <Ameneties />
+          <View style={{ marginHorizontal: 10 }}>
+            <Text style={{ fontSize: 15, fontWeight: 'bold' }}>Activities</Text>
+            <Pressable
+              onPress={() =>
+                navigation.navigate('Create', {
+                  area: route.params.name,
+                })
+              }
+              style={{
+                borderColor: '#787878',
+                marginTop: 10,
+                borderWidth: 1,
+                padding: 10,
+                justifyContent: 'center',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+              }}
+            >
+              <AntDesign name="plus" size={24} color="black" />
+              <Text>Create Activity</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
-        <Pressable
+     </ScrollView>
+    </SafeAreaView>
+
+     <Pressable
         onPress={() =>
           navigation.navigate('Slot', {
             place: venue.name,
             sports: venue.sportsAvailable,
-            bookings:venue.bookings
+            bookings: venue.bookings,
           })
         }
         style={{
@@ -170,38 +200,19 @@ const VenueInfoScreen = () => {
           marginBottom: 30,
           borderRadius: 3,
           marginHorizontal: 15,
-        }}>
-        <Text style={{textAlign: 'center', color: 'white', fontWeight: 'bold'}}>
+        }}
+      >
+        <Text
+          style={{ textAlign: 'center', color: 'white', fontWeight: 'bold' }}
+        >
           Book Now
         </Text>
       </Pressable>
-    </SafeAreaView>
-    
+      </>
   );
-};
+}; 
+
 
 export default VenueInfoScreen;
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    backgroundColor: '#ffffff',
-  },
-  container: {
-    paddingTop: 16,
-    alignItems: 'left',
-  },
-  image: {
-    width: '100%',
-    height: 200,
-  },
-  title: {
-    marginTop: 10,
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 10,
-    color: '#000000',
-    textAlign: 'left',
-  },
-});
+const styles = StyleSheet.create({})
