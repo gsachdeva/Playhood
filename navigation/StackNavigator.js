@@ -18,7 +18,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import PasswordScreen from '../screens/PasswordScreen';
 import OtpScreen from '../screens/OtpScreen';
 import NameScreen from '../screens/NameScreen';
-import SelectImage from '../screens/SelectImage';
+import SelectImage from '../screens/SelectImageScreen';
 import PreFinalScreen from '../screens/PrefinalScreen';
 
 const StackNavigator = () => {
@@ -157,7 +157,7 @@ const StackNavigator = () => {
   }
   return (
     <NavigationContainer>
-      <MainStack />
+      <AuthStack />
     </NavigationContainer>
   );
 };
