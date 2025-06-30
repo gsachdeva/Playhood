@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -11,9 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 const jwt = require('jsonwebtoken');
 
-mongoose.connect(
-  'mongodb+srv://sachdevag8944:Krishiv@cluster0.j1wwvqf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
-).then(() => {
+mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log('Connected to MongoDB');
 }).catch((err) => {
   console.error('MongoDB connection error:', err);
