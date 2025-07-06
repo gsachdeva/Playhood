@@ -1,9 +1,7 @@
-import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, StatusBar,TouchableOpacity } from 'react-native';
 
 const SplashScreen = ({ navigation }) => {
   
-
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#000" barStyle="light-content" />
