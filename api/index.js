@@ -16,6 +16,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const jwt = require('jsonwebtoken');
 const { use } = require('react');
 
+console.log("🔗 MONGO_URI =", process.env.MONGO_URI);
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
