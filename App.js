@@ -1,12 +1,14 @@
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import StackNavigator from './navigation/StackNavigator';
-
+import { AuthProvider } from './AuthContext';
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
 
   return (
-    <StackNavigator/>
+    <AuthProvider>
+      <StackNavigator />
+    </AuthProvider>
   );
 }
 

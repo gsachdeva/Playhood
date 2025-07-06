@@ -20,10 +20,13 @@ import OtpScreen from '../screens/OtpScreen';
 import NameScreen from '../screens/NameScreen';
 import SelectImage from '../screens/SelectImageScreen';
 import PreFinalScreen from '../screens/PrefinalScreen';
+import { AuthContext } from '../AuthContext';
+import React, { useContext } from 'react';
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
+  const {token} = useContext(AuthContext)
   function BottomTabs() {
     return (
       <Tab.Navigator>
@@ -157,7 +160,7 @@ const StackNavigator = () => {
   }
   return (
     <NavigationContainer>
-      <AuthStack />
+      {token == null || token === '' ? <AuthStack /> : <MainStack/>}
     </NavigationContainer>
   );
 };
