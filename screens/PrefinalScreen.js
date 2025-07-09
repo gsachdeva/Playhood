@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../AuthContext';
 import { getRegistrationProcess } from '../registrationUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const PreFinalScreen = () => {
   const navigation = useNavigation();
@@ -14,7 +15,8 @@ const PreFinalScreen = () => {
     if (token) {
       navigation.replace('MainStack', { screen: 'Main' });
     }
-  });
+  }, [token]); // ✅ only runs when token changes
+
   useEffect(() => {
     getAllScreenData();
   }, []);
@@ -41,13 +43,17 @@ const PreFinalScreen = () => {
         .then(response => {
           console.log(response);
           const token = response.data.token;
+          console.log('token', token);
           AsyncStorage.setItem('token', token);
+          setToken(token);
         });
+
       clearAllScreenData();
     } catch (error) {
       console.log('Error', error);
     }
   };
+  console.log('token', token);
   const clearAllScreenData = async () => {
     try {
       const screens = ['Register', 'Password', 'Name', 'Image'];

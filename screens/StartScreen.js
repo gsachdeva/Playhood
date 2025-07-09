@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, Image, StatusBar,TouchableOpacity } from 'react-native';
+import Colors from '../Constants/Colors';
 
 const SplashScreen = ({ navigation }) => {
   
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
    buttonText: {
-    color: '#0D0D0D',
+    color: Colors.primaryGreen,
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 20,
