@@ -13,7 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import { getRegistrationProcess, saveRegistrationProcess } from '../registrationUtils';
 
 
-const SelectImage = () => {
+const SelectImageScreen = () => {
   const navigation = useNavigation();
   const [image, setImage] = useState();
 
@@ -169,6 +169,6 @@ const SelectImage = () => {
   );
 };
 
-export default SelectImage;
+export default SelectImageScreen;
 
 const styles = StyleSheet.create({});

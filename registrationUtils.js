@@ -1,16 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-export const saveRegistrationProcess = async (screenName,data) => {
-    try {
-        const key = `registration_process_${screenName}`
-        await AsyncStorage.setItem(key,JSON.stringify(data))
+export const saveRegistrationProcess = async (screenName, data) => {
+  try {
+    const key = `registration_process_${screenName}`;
 
-        console.log(`Progress saved for screen: ${screenName}`);
+    // Validate before saving
+    const safeData = JSON.stringify(data, (key, value) => {
+      if (typeof value === 'function') return undefined;
+      return value;
+    });
 
-    }
-    catch(error){
-        console.log('Error saving the progress',error);
-    }
+    await AsyncStorage.setItem(key, safeData);
+
+    console.log(`Progress saved for screen: ${screenName}`);
+  } catch (error) {
+    console.log('Error saving the progress:', error);
+  }
 };
+
 
 export const getRegistrationProcess = async screenName => {
     try {
