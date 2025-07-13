@@ -16,8 +16,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
 const PlayScreen = () => {
-  const [option,setOption]=useState("My Sports");
-    const [sports,setSports]=useState("Badminton");
+  const [option, setOption] = useState('My Sports');
+  const [sports, setSports] = useState('Badminton');
+  const navigation = useNavigation();
 
   return (
     <SafeAreaView
@@ -66,50 +67,58 @@ const PlayScreen = () => {
             marginTop: 5,
           }}
         >
-          <Pressable onPress={()=>setOption("Calendar")}>
+          <Pressable onPress={() => setOption('Calendar')}>
             <Text
               style={{
-                color: option === "Calendar" ? '#12e04c' : '#ffffff',
+                color: option === 'Calendar' ? '#12e04c' : '#ffffff',
                 fontSize: 14,
                 fontWeight: 'bold',
-              }}>
+              }}
+            >
               Calendar
-              </Text>
-            
+            </Text>
           </Pressable>
-          <Pressable  onPress={()=>setOption("My Sports")}>
-
-           <Text
-              style={{
-                color: option === "My Sports" ? '#12e04c' : '#ffffff',
-                fontSize: 14,
-                fontWeight: 'bold',
-              }}>
-              My Sports
-             </Text>
-          </Pressable>
-          <Pressable onPress={()=>setOption("Other Sports")}>
+          <Pressable onPress={() => setOption('My Sports')}>
             <Text
               style={{
-                color: option === "Other Sports" ? '#12e04c' : '#ffffff',
+                color: option === 'My Sports' ? '#12e04c' : '#ffffff',
                 fontSize: 14,
                 fontWeight: 'bold',
-              }}>
+              }}
+            >
+              My Sports
+            </Text>
+          </Pressable>
+          <Pressable onPress={() => setOption('Other Sports')}>
+            <Text
+              style={{
+                color: option === 'Other Sports' ? '#12e04c' : '#ffffff',
+                fontSize: 14,
+                fontWeight: 'bold',
+              }}
+            >
               Other Sports
             </Text>
-            </Pressable>
+          </Pressable>
         </View>
-        <View style={{ marginVertical: 15,paddingHorizontal: 10,paddingBottom: 7 }}>
+        <View
+          style={{
+            marginVertical: 15,
+            paddingHorizontal: 10,
+            paddingBottom: 7,
+          }}
+        >
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <Pressable
-              onPress={() => setSports("Badminton")}
+              onPress={() => setSports('Badminton')}
               style={{
                 padding: 10,
-                borderWidth: sports == "Badminton" ? 0 : 1,           // 🔥 This makes the border visible
+                borderWidth: sports == 'Badminton' ? 0 : 1, // 🔥 This makes the border visible
                 marginRight: 10,
-                backgroundColor: sports == "Badminton" ? '#1dbf22' : 'transparent', // 🔥 This sets the background color
+                backgroundColor:
+                  sports == 'Badminton' ? '#1dbf22' : 'transparent', // 🔥 This sets the background color
                 borderRadius: 8,
-                borderColor: 'white'
+                borderColor: 'white',
               }}
             >
               <Text style={{ color: 'white', fontWeight: '600', fontSize: 15 }}>
@@ -118,14 +127,15 @@ const PlayScreen = () => {
             </Pressable>
 
             <Pressable
-              onPress={() => setSports("Cricket")}
+              onPress={() => setSports('Cricket')}
               style={{
                 padding: 10,
-                borderWidth: sports == "Cricket" ? 0 : 1, // 🔥 Conditional border width      
+                borderWidth: sports == 'Cricket' ? 0 : 1, // 🔥 Conditional border width
                 marginRight: 10,
-                backgroundColor: sports == "Cricket" ? '#1dbf22' : 'transparent', // 🔥 Conditional background color
+                backgroundColor:
+                  sports == 'Cricket' ? '#1dbf22' : 'transparent', // 🔥 Conditional background color
                 borderRadius: 8,
-                borderColor: 'white'
+                borderColor: 'white',
               }}
             >
               <Text style={{ color: 'white', fontWeight: '600', fontSize: 15 }}>
@@ -134,14 +144,15 @@ const PlayScreen = () => {
             </Pressable>
 
             <Pressable
-              onPress={() => setSports("Cycling")}
+              onPress={() => setSports('Cycling')}
               style={{
                 padding: 10,
-                borderWidth: sports == "Cycling" ? 0 : 1,          
+                borderWidth: sports == 'Cycling' ? 0 : 1,
                 marginRight: 10,
-                backgroundColor: sports == "Cycling" ? '#1dbf22' : 'transparent', // 🔥 Conditional background color
+                backgroundColor:
+                  sports == 'Cycling' ? '#1dbf22' : 'transparent', // 🔥 Conditional background color
                 borderRadius: 8,
-                borderColor: 'white'
+                borderColor: 'white',
               }}
             >
               <Text style={{ color: 'white', fontWeight: '600', fontSize: 15 }}>
@@ -150,13 +161,13 @@ const PlayScreen = () => {
             </Pressable>
 
             <Pressable
-              onPress={() => setSports("Running")}
+              onPress={() => setSports('Running')}
               style={{
-                
                 padding: 10,
-                borderWidth: sports == "Running" ? 0 : 1,          
+                borderWidth: sports == 'Running' ? 0 : 1,
                 marginRight: 10,
-                backgroundColor: sports == "Running" ? '#1dbf22' : 'transparent', // 🔥 Conditional background color
+                backgroundColor:
+                  sports == 'Running' ? '#1dbf22' : 'transparent', // 🔥 Conditional background color
                 borderRadius: 8,
                 borderColor: 'white',
               }}
@@ -168,23 +179,34 @@ const PlayScreen = () => {
           </ScrollView>
         </View>
       </View>
-      <View style={{ padding: 10, backgroundColor: '#ffffff', flexDirection: 'row', justifyContent: 'space-between'}}>
-        <Pressable>
+      <View
+        style={{
+          padding: 10,
+          backgroundColor: '#ffffff',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Pressable onPress={() => navigation.navigate("Create")}>
           <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#000000' }}>
             Create Game
           </Text>
         </Pressable>
         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-        <Pressable>
-          <Text style={{ fontSize:14,fontWeight:'bold',color:'#000000' }}>
-            Filter
-          </Text>
-        </Pressable>
-        <Pressable>
-          <Text style={{ fontSize: 14, color: '#000000', fontWeight: 'bold' }}>
-            Sort
-          </Text>
-        </Pressable>
+          <Pressable>
+            <Text
+              style={{ fontSize: 14, fontWeight: 'bold', color: '#000000' }}
+            >
+              Filter
+            </Text>
+          </Pressable>
+          <Pressable>
+            <Text
+              style={{ fontSize: 14, color: '#000000', fontWeight: 'bold' }}
+            >
+              Sort
+            </Text>
+          </Pressable>
         </View>
       </View>
     </SafeAreaView>
