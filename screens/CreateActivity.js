@@ -22,8 +22,8 @@ import Modal from 'react-native-modal';
 import moment from 'moment';
 import axios from 'axios';
 import { AuthContext } from '../AuthContext';
- import { useSelector, useDispatch } from 'react-redux';
-  import {
+import { useSelector, useDispatch } from 'react-redux';
+import {
   setSport,
   setArea,
   setDate,
@@ -37,15 +37,12 @@ const CreateActivity = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const route = useRoute();
 
+  const dispatch = useDispatch();
+  const activity = useSelector(state => state.activity);
+
   const [taggedVenue, setTaggedVenue] = useState(null);
   const { userId } = useContext(AuthContext);
 
- 
-
-const dispatch = useDispatch();
-const { sport, area, date, timeInterval, noOfPlayers } = useSelector(
-  (state) => state.activity
-);
   console.log('userID', userId);
   const generateDates = () => {
     const dates = [];
@@ -77,10 +74,11 @@ const { sport, area, date, timeInterval, noOfPlayers } = useSelector(
   const selectDate = date => {
     setModalVisible(false);
     setDate(date);
+    dispatch(setDate(date));
+    console.log('Selected Date:', date);
   };
 
   console.log(route.params);
-
 
   useEffect(() => {
     if (route.params?.timeInterval) {
@@ -88,72 +86,94 @@ const { sport, area, date, timeInterval, noOfPlayers } = useSelector(
     }
   }, [route.params]);
 
-  console.log(timeInterval);
+  const { sport, area, date, timeInterval, noOfPlayers } = activity;
 
-
- useEffect(() => {
-  if (route.params?.taggedVenue) {
-    setTaggedVenue(route.params.taggedVenue);
-    if (!area) setArea(route.params.taggedVenue); // Only set if area is empty
-  }
-}, [route.params?.taggedVenue]);
+  useEffect(() => {
+    if (route.params?.taggedVenue) {
+      setTaggedVenue(route.params.taggedVenue);
+      if (!activity.area) {
+        dispatch(setArea(route.params.taggedVenue));
+      }
+    }
+  }, [route.params?.taggedVenue]);
+  console.log('activity', activity);
+  console.log('sport', sport);
+  console.log('area', area);
+  console.log('date', date);
+  console.log('timeInterval', timeInterval);
+  console.log('noOfPlayers', noOfPlayers);
+  console.log('userId', userId);
 
   console.log('taggedVenue', taggedVenue);
   const createGame = async () => {
-    if (!sport.trim()) {
-      Alert.alert('Validation Error', 'Please enter a sport');
-      return;
-    }
-    if (!area.trim()) {
-      Alert.alert('Validation Error', 'Please enter an area or venue');
-      return;
-    }
-    if (!date) {
-      Alert.alert('Validation Error', 'Please select a date');
-      return;
-    }
-    if (!timeInterval) {
-      Alert.alert('Validation Error', 'Please select a time');
-      return;
-    }
-    if (!noOfPlayers || isNaN(noOfPlayers)) {
-      Alert.alert('Validation Error', 'Please enter a valid number of players');
-      return;
-    }
-    try {
-      const admin = userId;
-      const time = timeInterval;
-      const gameData = {
-        sport,
-        area: taggedVenue ? taggedVenue : area,
-        date,
-        timeInterval,
-        admin,
-        totalPlayers: noOfPlayers,
-      };
-      console.log('Game Data:', gameData);
+  if (!sport.trim()) {
+    Alert.alert('Validation Error', 'Please enter a sport');
+    return;
+  }
+  if (!area.trim()) {
+    Alert.alert('Validation Error', 'Please enter an area or venue');
+    return;
+  }
+  if (!date) {
+    Alert.alert('Validation Error', 'Please select a date');
+    return;
+  }
+  if (!timeInterval) {
+    Alert.alert('Validation Error', 'Please select a time');
+    return;
+  }
+  if (!noOfPlayers || isNaN(noOfPlayers)) {
+    Alert.alert('Validation Error', 'Please enter a valid number of players');
+    return;
+  }
 
-      const response = await axios.post(
-        'http://localhost:8000/creategame',
-        gameData,
-      );
-      console.log('Game created:', response.data);
-      if (response.status == 200) {
-        Alert.alert('Success!', 'Game created Succesfully', [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
-      }
-      // Handle success or navigate to another screen
-    } catch (error) {
-      console.error('Failed to create game:', error);
-      // Handle error
+  try {
+    const gameData = {
+      sport,
+      area: taggedVenue ? taggedVenue : area,
+      date: date,
+      time: timeInterval, // backend expects "time"
+      admin: userId,
+      totalPlayers: noOfPlayers,
+      requests: [
+        {
+          userId: userId,
+          comment: 'I want to join this game',
+        },
+      ],
+    };
+
+    const response = await axios.post(
+      'http://localhost:8000/creategame',
+      gameData,
+    );
+
+    if (response.status === 200) {
+      Alert.alert('Success!', 'Game created successfully', [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
     }
-  };
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Axios Error Response:', error.response?.data);
+      console.error('Axios Error Status:', error.response?.status);
+      console.error('Axios Error Message:', error.message);
+
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Something went wrong. Please try again.',
+      );
+    } else {
+      console.error('Unknown Error:', error);
+      Alert.alert('Error', 'An unexpected error occurred.');
+    }
+  }
+};
 
   return (
     <>
@@ -191,7 +211,7 @@ const { sport, area, date, timeInterval, noOfPlayers } = useSelector(
                 <Text style={{ fontSize: 17, fontWeight: '500' }}>Sport</Text>
                 <TextInput
                   value={sport}
-                  onChangeText={(text) => dispatch(setSport(text))}
+                  onChangeText={text => dispatch(setSport(text))}
                   style={{ marginTop: 7, fontSize: 15 }}
                   placeholderTextColor="gray"
                   placeholder={'Eg Badminton / Footbal / Cricket'}
@@ -218,9 +238,8 @@ const { sport, area, date, timeInterval, noOfPlayers } = useSelector(
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 17, fontWeight: '500' }}>Area</Text>
                 <TextInput
-                   value={area}
-                    onChangeText={(text) => dispatch(setArea(text))}
-
+                  value={area}
+                  onChangeText={text => dispatch(setArea(text))}
                   placeholderTextColor="gray"
                   style={{ marginTop: 7, fontSize: 15, color: 'black' }}
                   placeholder={'Locality or venue name'}
@@ -416,8 +435,8 @@ const { sport, area, date, timeInterval, noOfPlayers } = useSelector(
               <View style={{ marginVertical: 5 }}>
                 <View>
                   <TextInput
-                    value={noOfPlayers}
-                    onChangeText={(text) => dispatch(setNoOfPlayers(text))}
+                    value={activity.noOfPlayers}
+                    onChangeText={text => dispatch(setNoOfPlayers(text))}
                     style={{
                       padding: 10,
                       backgroundColor: 'white',

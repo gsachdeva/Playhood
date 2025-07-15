@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken');
 const User = require('./models/user');
 const Game = require('./models/game');
 const Venue = require('./models/venue');
+const game = require('./models/game');
 
 // Middleware
 app.use(cors());
@@ -579,18 +580,15 @@ async function addVenues() {
       const existingVenue = await Venue.findOne({ name: venue.name });
 
       if (existingVenue) {
-        console.log(`Skipped: Venue already exists - ${venue.name}`);
+      
         skippedCount++;
         continue;
       }
 
       // If not found, insert the new venue
       await Venue.create(venue);
-      console.log(`Added: ${venue.name}`);
       addedCount++;
     }
-
-    console.log(`✅ Done. Added: ${addedCount}, Skipped: ${skippedCount}`);
   } catch (error) {
     console.error('❌ Error adding venues:', error);
   }
@@ -603,7 +601,6 @@ addVenues().catch(err => {
 app.get('/venues', async (req, res) => {
   try {
     const venues = await Venue.find({});
-    console.log("ven",venues)
     res.status(200).json(venues);
   } catch (error) {
     console.error(error);
@@ -613,26 +610,71 @@ app.get('/venues', async (req, res) => {
 
 app.post('/creategame', async (req, res) => {
   try {
-    const { name, sport, date, timeInterval, area, totalPlayers, venue } = req.body;
+    const { sport, area, date, time, totalPlayers, requests } = req.body;
+    const admin = req.userId || req.body.admin;
 
-    if (!name || !sport || !date || !timeInterval || !area || !totalPlayers || !venue) {
+    console.log('Creating game with data:', req.body);
+
+    if (!sport || !date || !time || !area || !totalPlayers || !admin) {
+      console.error('Missing required fields');
       return res.status(400).json({ message: 'All fields are required' });
     }
 
     const gameData = {
-      name,
       sport,
-      date,
-      timeInterval,
       area,
+      date,
+      time,
+      admin,
       totalPlayers,
-      venue
+      requests: requests || [],
     };
 
     const newGame = await Game.create(gameData);
     res.status(200).json(newGame);
   } catch (error) {
     console.error('Failed to create game:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
+app.get('/games', async (req, res) => {
+  try {
+    const games = await Game.find({}).populate('admin', 'players','image firstName lastName email');
+    
+    const currentDate = moment();
+    const filteredGames = games.filter(game => {
+      const gameDate = moment(games.date,'do MMMM');
+      console.log(gameDate)
+
+      const gameDateTime = moment(`${gameDate.format('YYYY-MM-DD')} ${game.time}`, 'YYYY-MM-DD HH:mm');
+      return gameDateTime.isAfter(currentDate);
+    });
+
+       const formattedGames = filteredGames.map(game => ({
+      _id: game._id,
+      sport: game.sport,
+      date: game.date,
+      time: game.time,
+      area: game.area,
+      players: game.players.map(player => ({
+        _id: player._id,
+        imageUrl: player.image, // Player's image URL
+        name: `${player.firstName} ${player.lastName}`, // Optional: Player's name
+      })),
+      totalPlayers: game.totalPlayers,
+      queries: game.queries,
+      requests: game.requests,
+      isBooked: game.isBooked,
+      adminName: `${game.admin.firstName} ${game.admin.lastName}`,
+      adminUrl: game.admin.image, // Assuming the URL is stored in the image field
+      matchFull:game.matchFull
+    }));
+  //  res.json(formattedGames);
+
+    res.status(200).json(formattedGames);
+  } catch (error) {
+    console.error('Failed to fetch games:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
