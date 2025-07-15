@@ -21,6 +21,9 @@ import SelectImage from '../screens/SelectImageScreen';
 import PreFinalScreen from '../screens/PrefinalScreen';
 import { AuthContext } from '../AuthContext';
 import React, { useContext } from 'react';
+import CreateActivity from '../screens/CreateActivity';
+import TagVenueScreen from '../screens/TagVenueScreen';
+import SelectTimeScreen from '../screens/SelectTimeScreen';
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -152,6 +155,21 @@ const StackNavigator = () => {
         <Stack.Screen
           name="VenueInfoScreen"
           component={VenueInfoScreen}
+          options={{ headerShown: false }}
+        />
+         <Stack.Screen
+          name="Create"
+          component={CreateActivity}  
+          options={{ headerShown: false,unmountOnBlur: false }}
+        />
+        <Stack.Screen
+          name="TagVenue"
+          component={TagVenueScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Time"
+          component={SelectTimeScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
