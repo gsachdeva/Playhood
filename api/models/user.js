@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
     },
     lastName: {
       type: String,
+      required: true, // Added lastName as a required field
     },
     image: {
       type: String, // URL to the user's profile image
