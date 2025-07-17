@@ -13,6 +13,7 @@ const User = require('./models/user');
 const Game = require('./models/game');
 const Venue = require('./models/venue');
 const game = require('./models/game');
+const moment = require('moment');
 
 // Middleware
 app.use(cors());
@@ -35,12 +36,13 @@ app.listen(PORT, () => {
 // Registration Route
 app.post('/register', async (req, res) => {
   try {
-    const { email, password, firstName,image } = req.body;
+    const { email, password, firstName,lastName,image } = req.body;
 
-    if (!email || !password || !firstName) {
-      return res.status(400).json({ message: 'Email, password, and firstName are required' });
+    if (!email || !password || !firstName|| !lastName) {
+      return res.status(400).json({ message: 'Email, password, firstName and last name are required' });
     }
-
+    // Check if user already exists
+    console.log('🔍 Checking for existing user with email:', email);
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already registered with this email' });
@@ -52,6 +54,7 @@ app.post('/register', async (req, res) => {
       email,
       password: hashedPassword,
       firstName,
+      lastName,
       image
     });
 
@@ -610,28 +613,27 @@ app.get('/venues', async (req, res) => {
 
 app.post('/creategame', async (req, res) => {
   try {
-    const { sport, area, date, time, totalPlayers, requests } = req.body;
-    const admin = req.userId || req.body.admin;
+    const {sport, area, date, time, admin, totalPlayers} = req.body;
 
-    console.log('Creating game with data:', req.body);
+    const activityAccess = 'public';
 
-    if (!sport || !date || !time || !area || !totalPlayers || !admin) {
-      console.error('Missing required fields');
-      return res.status(400).json({ message: 'All fields are required' });
-    }
+    console.log('sport', sport);
+    console.log(area);
+    console.log(date);
+    console.log(admin);
 
-    const gameData = {
+    const newGame = new Game({
       sport,
       area,
       date,
       time,
       admin,
       totalPlayers,
-      requests: requests || [],
-    };
+      players: [admin],
+    });
 
-    const newGame = await Game.create(gameData);
-    res.status(200).json(newGame);
+    const savedGame = await newGame.save();
+    res.status(200).json(savedGame);
   } catch (error) {
     console.error('Failed to create game:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
@@ -640,18 +642,79 @@ app.post('/creategame', async (req, res) => {
 
 app.get('/games', async (req, res) => {
   try {
-    const games = await Game.find({}).populate('admin', 'players','image firstName lastName email');
-    
-    const currentDate = moment();
-    const filteredGames = games.filter(game => {
-      const gameDate = moment(games.date,'do MMMM');
-      console.log(gameDate)
+ //   console.log("✅ Fetched", req.toString());
 
-      const gameDateTime = moment(`${gameDate.format('YYYY-MM-DD')} ${game.time}`, 'YYYY-MM-DD HH:mm');
+    const games = await Game.find({})
+      .populate('admin')
+      .populate('players', 'image firstName lastName');
+
+  //  console.log("✅ Fetched games:", games.length);
+
+    const currentDate = moment();
+  //  console.log("📆 Current Date & Time:", currentDate.format());
+
+    const filteredGames = games.filter(game => {
+      const gameDate = moment(game.date, 'Do MMMM'); // e.g., "9th July"
+   //   console.log('📅 Parsed Game Date:', game.date, "->", gameDate.format());
+
+      const gameTime = game.time?.split(' - ')[0]; // Get start time (e.g., "10:00 AM")
+   //   console.log('🕒 Game Start Time:', gameTime);
+
+      const gameDateTime = moment(
+        `${gameDate.format('YYYY-MM-DD')} ${gameTime}`,
+        'YYYY-MM-DD h:mm A',
+      );
+
+   //   console.log('🧮 Game DateTime:', gameDateTime.format());
+
       return gameDateTime.isAfter(currentDate);
     });
 
-       const formattedGames = filteredGames.map(game => ({
+   // console.log("✅ Filtered games count:", filteredGames.length);
+
+    const formattedGames = filteredGames.map(game => ({
+      _id: game._id,
+      sport: game.sport,
+      date: game.date,
+      time: game.time,
+      area: game.area,
+      players: game.players.map(player => ({
+        _id: player._id,
+        imageUrl: player.image,
+        name: `${player.firstName} ${player.lastName}`,
+      })),
+      totalPlayers: game.totalPlayers,
+      queries: game.queries,
+      requests: game.requests,
+      isBooked: game.isBooked,
+      adminName: `${game.admin?.firstName ?? ''} ${game.admin?.lastName ?? ''}`,
+      adminUrl: game.admin?.image ?? '',
+      matchFull: game.matchFull,
+    }));
+
+    res.json(formattedGames);
+  } catch (err) {
+    console.error("❌ Error while fetching games:", err.message);
+    console.error(err.stack); // Full stack trace for debugging
+
+    res.status(500).json({
+      message: 'Failed to fetch games',
+      error: err.message,
+    });
+  }
+});
+
+app.get('/upcoming',async (req, res) => {
+
+  try{
+    const userId = req.query.userId;
+    console.log('userId', userId);
+    const games = await Game.find({})
+    .populate('admin')
+    .populate('players', 'image firstName lastName');
+
+        // Format games with the necessary details
+    const formattedGames = games.map(game => ({
       _id: game._id,
       sport: game.sport,
       date: game.date,
@@ -666,15 +729,18 @@ app.get('/games', async (req, res) => {
       queries: game.queries,
       requests: game.requests,
       isBooked: game.isBooked,
+      courtNumber: game.courtNumber,
       adminName: `${game.admin.firstName} ${game.admin.lastName}`,
       adminUrl: game.admin.image, // Assuming the URL is stored in the image field
+      isUserAdmin: game.admin._id.toString() === userId,
       matchFull:game.matchFull
     }));
-  //  res.json(formattedGames);
 
-    res.status(200).json(formattedGames);
-  } catch (error) {
-    console.error('Failed to fetch games:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.json(formattedGames);
+  }
+
+  catch (error) {
+    console.error('❌ Error fetching upcoming games:', error);
+    res.status(500).json({ message: 'Failed to fetch upcoming games' });
   }
 });
