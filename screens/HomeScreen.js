@@ -1,41 +1,96 @@
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Pressable } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Pressable,
+} from 'react-native';
+import React, { useState, useContext, useEffect, useLayoutEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
- const data = [
-    {
-      id: '10',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/Tennis%20Spotlight.png',
-      text: 'Learn Tennis',
-      description: 'Know more',
-    },
-    {
-      id: '11',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_08.png',
-      text: 'Up Your Game',
-      description: 'Find a coach',
-    },
-    {
-      id: '12',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_03.png',
-      text: 'Hacks to win',
-      description: 'Yes, Please!',
-    },
-    {
-      id: '13',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_02.png',
-      text: 'Spotify Playolist',
-      description: 'Show more',
-    },
-  ];
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { jwtDecode } from 'jwt-decode';
+
+import { AuthContext } from '../AuthContext';
+import axios from 'axios';
+const data = [
+  {
+    id: '10',
+    image:
+      'https://playov2.gumlet.io/v3_homescreen/marketing_journey/Tennis%20Spotlight.png',
+    text: 'Learn Tennis',
+    description: 'Know more',
+  },
+  {
+    id: '11',
+    image:
+      'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_08.png',
+    text: 'Up Your Game',
+    description: 'Find a coach',
+  },
+  {
+    id: '12',
+    image:
+      'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_03.png',
+    text: 'Hacks to win',
+    description: 'Yes, Please!',
+  },
+  {
+    id: '13',
+    image:
+      'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_02.png',
+    text: 'Spotify Playolist',
+    description: 'Show more',
+  },
+];
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const { userId, setUserId } = useContext(AuthContext);
+  const { token, setToken } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
+
+  const clearAuthToken = async () => {
+    try {
+      AsyncStorage.getItem('authToken').then(value => {
+        if (value !== null) {
+          AsyncStorage.removeItem('authToken');
+          setToken('');
+          setUserId('');
+          navigation.navigate('Start');
+        }
+      });
+    } catch (error) {
+      console.error('Error clearing auth token:', error);
+    }
+  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.userId;
+
+        console.log('✅ Decoded userId:', userId);
+        setUserId(userId);
+
+        const response = await axios.get(
+          `http://localhost:8000/user/${userId}`,
+        );
+        setUser(response.data);
+        console.log('✅ User data fetched:', response.data);
+      } catch (error) {
+        console.error('❌ Error fetching user data:', error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   useLayoutEffect(() => {
+    console.log('📦 useLayoutEffect - User:', user); 
     navigation.setOptions({
       headerTitle: '',
       headerLeft: () => (
@@ -43,9 +98,11 @@ const HomeScreen = () => {
           <Text>Mohali</Text>
         </View>
       ),
-      headerRight: () => <HeaderRight />,
+      headerRight: () => (
+        <HeaderRight clearAuthToken={clearAuthToken} user={user} />
+      ),
     });
-  }, [navigation]);
+  }, [navigation,user]);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F8F8F8' }}>
@@ -60,20 +117,24 @@ const HomeScreen = () => {
   );
 };
 
-const HeaderRight = () => (
-  <View style={{ marginRight: 10, flexDirection: 'row', gap: 10 }}>
-    <Ionicons name="chatbox-outline" size={24} color="black" />
-    <Ionicons name="notifications-outline" size={24} color="black" />
-    <Pressable>
-      <Image
-        source={{
-          uri: 'https://cdn-icons-png.flaticon.com/128/4140/4140048.png',
-        }}
-        style={{ width: 24, height: 24, borderRadius: 15 }}
-      />
-    </Pressable>
-  </View>
-);
+const HeaderRight = ({ clearAuthToken, user }) => {
+  const imageUri =
+    user?.user?.image || 'https://cdn-icons-png.flaticon.com/128/149/149071.png';
+
+  return (
+    <View style={{ marginRight: 10, flexDirection: 'row', gap: 10 }}>
+      <Ionicons name="chatbox-outline" size={24} color="black" />
+      <Ionicons name="notifications-outline" size={24} color="black" />
+      <Pressable onPress={clearAuthToken}>
+        <Image
+          source={{ uri: imageUri }}
+          style={{ width: 25, height: 25, borderRadius: 20 }}
+          resizeMode="cover"
+        />
+      </Pressable>
+    </View>
+  );
+};
 
 const FitnessGoalCard = () => (
   <View style={styles.rowContainer}>
@@ -93,7 +154,10 @@ const GameAvailableSection = () => (
     <Text style={styles.textGreyBackground}>GEAR UP FOR YOUR GAME</Text>
     <View style={styles.rowContainer}>
       <Text style={styles.boldText}>Badminton Activity</Text>
-      <TouchableOpacity style={styles.viewButton} onPress={() => console.log('View All')}>
+      <TouchableOpacity
+        style={styles.viewButton}
+        onPress={() => console.log('View All')}
+      >
         <Text style={styles.text}>View</Text>
       </TouchableOpacity>
     </View>
@@ -103,7 +167,14 @@ const GameAvailableSection = () => (
 );
 
 const CorouselSection = () => (
-  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 ,marginTop: 10}}>
+  <View
+    style={{
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 10,
+      marginTop: 10,
+    }}
+  >
     <Pressable style={{ width: 180 }}>
       <View style={{ borderRadius: 10, overflow: 'hidden' }}>
         <Image
@@ -114,7 +185,9 @@ const CorouselSection = () => (
           resizeMode="cover"
         />
       </View>
-      <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
+      <View
+        style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}
+      >
         <Text style={{ fontWeight: 'bold' }}>Play</Text>
         <Text>Find Players and join their activities</Text>
       </View>
@@ -130,7 +203,9 @@ const CorouselSection = () => (
           resizeMode="cover"
         />
       </View>
-      <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
+      <View
+        style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}
+      >
         <Text style={{ fontWeight: 'bold' }}>Book</Text>
         <Text>Book your slots in nearby venues</Text>
       </View>
@@ -139,48 +214,68 @@ const CorouselSection = () => (
 );
 
 const BottomSection = () => (
-  <View style={[styles.bottomColumnContainer,{marginTop: 10,marginRight: 20}]}>
-  <View style={styles.bottomRowContainer}>
-    <View style={styles.iconCircle}>
-    <AntDesign name="addusergroup" size={24} color="green" />
+  <View
+    style={[styles.bottomColumnContainer, { marginTop: 10, marginRight: 20 }]}
+  >
+    <View style={styles.bottomRowContainer}>
+      <View style={styles.iconCircle}>
+        <AntDesign name="addusergroup" size={24} color="green" />
+      </View>
+      <View style={styles.bottomColumnContainer}>
+        <Text style={[styles.boldText, { marginLeft: 10 }]}>Groups</Text>
+        <Text style={[styles.subText, { marginLeft: 10 }]}>
+          Connect, Compete and Discuss
+        </Text>
+      </View>
     </View>
-    <View style={styles.bottomColumnContainer}>
-      <Text style={[styles.boldText, { marginLeft: 10 }]}>Groups</Text>
-      <Text style={[styles.subText, { marginLeft: 10 }]}>Connect, Compete and Discuss</Text>
-    </View>
-  </View>
 
-  <View style={styles.bottomRowContainer}>
-    <View style={styles.iconCircle2}>
-     <Ionicons name="tennisball-outline" size={24} color="black" />
+    <View style={styles.bottomRowContainer}>
+      <View style={styles.iconCircle2}>
+        <Ionicons name="tennisball-outline" size={24} color="black" />
+      </View>
+      <View flexDirection="column" style={styles.bottomColumnContainer}>
+        <Text style={[styles.boldText, { marginLeft: 10 }]}>
+          Game Time Activities
+        </Text>
+        <Text style={[styles.subText, { marginLeft: 10 }]}>
+          355 Playwood Hosted Games
+        </Text>
+      </View>
     </View>
-    <View flexDirection="column" style={styles.bottomColumnContainer}>
-      <Text style={[styles.boldText, { marginLeft: 10 }]}>Game Time Activities</Text>
-      <Text style={[styles.subText, { marginLeft: 10 }]}>355 Playwood Hosted Games</Text>
-    </View>
-  </View>
   </View>
 );
 
-const SpotlightSection =() => (
-  <View style={{padding:1}}>
-  <View style={{padding:10,backgroundColor:"white",borderRadius:10}}>
-  <Text style={{fontSize:16,fontWeight:"500",color:"#000",marginTop:10}}>Spotlight</Text>
-</View>
-  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
-   {data.map((item) => (
-  <Pressable key={item.id} style={{ marginBottom: 10 }}>
-    <Image
-      source={{ uri: item.image }}
-      style={styles.corouselImage}
-      resizeMode="cover"
-    />
-    <Text style={{ fontWeight: 'bold', marginTop: 5 }}>{item.text}</Text>
-    <Text>{item.description}</Text>
-  </Pressable>
-))}
-
-  </ScrollView>
+const SpotlightSection = () => (
+  <View style={{ padding: 1 }}>
+    <View style={{ padding: 10, backgroundColor: 'white', borderRadius: 10 }}>
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: '500',
+          color: '#000',
+          marginTop: 10,
+        }}
+      >
+        Spotlight
+      </Text>
+    </View>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={{ marginTop: 10 }}
+    >
+      {data.map(item => (
+        <Pressable key={item.id} style={{ marginBottom: 10 }}>
+          <Image
+            source={{ uri: item.image }}
+            style={styles.corouselImage}
+            resizeMode="cover"
+          />
+          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>{item.text}</Text>
+          <Text>{item.description}</Text>
+        </Pressable>
+      ))}
+    </ScrollView>
   </View>
 );
 
@@ -193,44 +288,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F8F8',
     padding: 15,
   },
- rowContainer: {
-  width: '100%',               
-  backgroundColor: '#FFFFFF',
-  borderRadius: 10,
-  flexDirection: 'row',
-  justifyContent: 'space-between', 
-  alignItems: 'center',            
-  marginBottom: 10,
-  paddingHorizontal: 10,          
-  paddingVertical: 6,             
-},
+  rowContainer: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
   bottomRowContainer: {
-  width: '100%',
-  backgroundColor: '#FFFFFF',
-  borderRadius: 10,
-  flexDirection: 'row',
-  justifyContent: 'space-between', 
-  alignItems: 'center',
-  marginHorizontal: 10,
-  marginVertical: 10,
-},
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 10,
+  },
   columnContainer: {
-  flex: 1,                  
-  width: '100%',            
-  justifyContent: 'center',
-  alignItems: 'flex-start',  
-  backgroundColor: '#FFFFFF',
-  padding: 10,
-  borderRadius: 10,
-},
-   bottomColumnContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 10,
+  },
+  bottomColumnContainer: {
     flex: 1,
     alignItems: 'flex-start',
     justifyContent: 'center',
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
     padding: 10,
-    borderRadius: 10
+    borderRadius: 10,
   },
   icon: {
     width: 35,
@@ -305,21 +400,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   iconCircle: {
-  width: 50,
-  height: 50,
-  borderRadius: 20,             
-  backgroundColor: '#D4EDDA',  
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-iconCircle2: {
-  width: 50,
-  height: 50,
-  borderRadius: 20,             
-  backgroundColor: 'yellow',  
-  justifyContent: 'center',
-  alignItems: 'center',
-}
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: '#D4EDDA',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconCircle2: {
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: 'yellow',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default HomeScreen;

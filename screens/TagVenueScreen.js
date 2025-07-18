@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, SafeAreaView, FlatList, Pressable, Image} from 'react-native';
+import {StyleSheet, Text, View, SafeAreaView, FlatList, Pressable, Image, TouchableOpacity} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
@@ -53,8 +53,9 @@ const TagVenueScreen = () => {
             alignItems: 'center',
             gap: 10,
           }}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="white" />
-
+        </TouchableOpacity>
           <Text style={{fontSize: 15, fontWeight: '500', color: 'white'}}>
             Tag Venue
           </Text>

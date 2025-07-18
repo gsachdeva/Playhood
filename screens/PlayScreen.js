@@ -39,14 +39,11 @@ const PlayScreen = () => {
       fetchUpcomingGames();
     }
   }}, [userId]);
-  console.log("User ID:", userId);
   const fetchUpcomingGames = async () => {
     try {
-      console.log("Fetching upcoming games for user ID:", userId);
       const response = await axios.get(`http://localhost:8000/upcoming`, {
-      params: { userId: "6873bf1e1af08f0695caad4b" },
+      params: { userId: userId },
     });
-      console.log("✅ Upcoming games fetched:", response);
       setUpcomingGames(response.data);
     } catch (error) {
       console.error('❌ Failed to fetch upcoming games:', error.message);
@@ -56,8 +53,6 @@ const PlayScreen = () => {
 const fetchGames = async () => {
   try {
     const response = await axios.get('http://localhost:8000/games');
-        console.log("✅ Games fetched:", response);
-
     const data = response.data; // ✅ Correct way to get data from Axios
     setGames(data);
     console.log("✅ Games fetched:", data);
