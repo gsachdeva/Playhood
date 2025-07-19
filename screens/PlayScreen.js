@@ -39,7 +39,6 @@ const PlayScreen = () => {
       fetchUpcomingGames();
     }
   }}, [userId]);
-  console.log("User ID:", userId);
   const fetchUpcomingGames = async () => {
     try {
       console.log("Fetching upcoming games for user ID:", userId);

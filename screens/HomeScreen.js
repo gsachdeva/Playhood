@@ -1,40 +1,19 @@
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Pressable } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect,useContext,useState,useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
- const data = [
-    {
-      id: '10',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/Tennis%20Spotlight.png',
-      text: 'Learn Tennis',
-      description: 'Know more',
-    },
-    {
-      id: '11',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_08.png',
-      text: 'Up Your Game',
-      description: 'Find a coach',
-    },
-    {
-      id: '12',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_03.png',
-      text: 'Hacks to win',
-      description: 'Yes, Please!',
-    },
-    {
-      id: '13',
-      image:
-        'https://playov2.gumlet.io/v3_homescreen/marketing_journey/playo_spotlight_02.png',
-      text: 'Spotify Playolist',
-      description: 'Show more',
-    },
-  ];
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../AuthContext';
+import data from '../api/Constants/Data';
+
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const {token,setToken } = useContext(AuthContext);
+  const {userId, setUserId} = useContext(AuthContext);
+  const [user, setUser] = useState('');
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: '',
@@ -43,9 +22,46 @@ const HomeScreen = () => {
           <Text>Mohali</Text>
         </View>
       ),
-      headerRight: () => <HeaderRight />,
+      headerRight: () => <HeaderRight handleLogout={handleLogout} />,
     });
   }, [navigation]);
+
+
+ useEffect(() => {
+    const fetchUser = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.userId;
+      setUserId(userId);
+    };
+
+    fetchUser();
+  }, []);
+    console.log('user', userId);
+
+     const fetchUser = async () => {
+    try {
+      console.log('userID', userId);
+      const response = await axios.get(`http://localhost:8000/user/${userId}`);
+      setUser(response.data);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+ 
+
+  const handleLogout = async () => {
+  try {
+    await AsyncStorage.removeItem('token');
+    console.log('🔓 Token cleared');
+    setToken(null);
+    navigation.navigate('Login');
+  } catch (error) {
+    console.error('Failed to clear token:', error);
+  }
+};
+
+
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F8F8F8' }}>
@@ -60,15 +76,16 @@ const HomeScreen = () => {
   );
 };
 
-const HeaderRight = () => (
+const HeaderRight = ({handleLogout}) => (
   <View style={{ marginRight: 10, flexDirection: 'row', gap: 10 }}>
     <Ionicons name="chatbox-outline" size={24} color="black" />
     <Ionicons name="notifications-outline" size={24} color="black" />
-    <Pressable>
+    <Pressable onPress={handleLogout}>
       <Image
         source={{
-          uri: 'https://cdn-icons-png.flaticon.com/128/4140/4140048.png',
+          uri: 'https://cdn-icons-png.flaticon.com/128/4140/4140048.png'
         }}
+        
         style={{ width: 24, height: 24, borderRadius: 15 }}
       />
     </Pressable>

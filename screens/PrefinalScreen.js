@@ -6,16 +6,12 @@ import { getRegistrationProcess } from '../registrationUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
+
 const PreFinalScreen = () => {
   const navigation = useNavigation();
   const { token, setToken } = useContext(AuthContext);
   const [userData, setUserData] = useState();
 
-  useEffect(() => {
-    if (token) {
-      navigation.replace('MainStack', { screen: 'Main' });
-    }
-  }, [token]); // ✅ only runs when token changes
 
   useEffect(() => {
     getAllScreenData();
