@@ -642,35 +642,22 @@ app.post('/creategame', async (req, res) => {
 
 app.get('/games', async (req, res) => {
   try {
- //   console.log("✅ Fetched", req.toString());
-
     const games = await Game.find({})
       .populate('admin')
       .populate('players', 'image firstName lastName');
 
-  //  console.log("✅ Fetched games:", games.length);
-
     const currentDate = moment();
-  //  console.log("📆 Current Date & Time:", currentDate.format());
-
     const filteredGames = games.filter(game => {
-      const gameDate = moment(game.date, 'Do MMMM'); // e.g., "9th July"
-   //   console.log('📅 Parsed Game Date:', game.date, "->", gameDate.format());
+      const gameDate = moment(game.date, 'Do MMMM');
 
-      const gameTime = game.time?.split(' - ')[0]; // Get start time (e.g., "10:00 AM")
-   //   console.log('🕒 Game Start Time:', gameTime);
-
+      const gameTime = game.time?.split(' - ')[0]; 
       const gameDateTime = moment(
         `${gameDate.format('YYYY-MM-DD')} ${gameTime}`,
         'YYYY-MM-DD h:mm A',
       );
 
-   //   console.log('🧮 Game DateTime:', gameDateTime.format());
-
       return gameDateTime.isAfter(currentDate);
     });
-
-   // console.log("✅ Filtered games count:", filteredGames.length);
 
     const formattedGames = filteredGames.map(game => ({
       _id: game._id,
@@ -732,15 +719,79 @@ app.get('/upcoming',async (req, res) => {
       courtNumber: game.courtNumber,
       adminName: `${game.admin.firstName} ${game.admin.lastName}`,
       adminUrl: game.admin.image, // Assuming the URL is stored in the image field
+      admin: game.admin._id.toString(),
       isUserAdmin: game.admin._id.toString() === userId,
       matchFull:game.matchFull
     }));
-
     res.json(formattedGames);
   }
 
   catch (error) {
     console.error('❌ Error fetching upcoming games:', error);
     res.status(500).json({ message: 'Failed to fetch upcoming games' });
+  }
+});
+
+app.post('/games/:gameId/request', async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    const { userId, courtNumber } = req.body;
+
+    const game = await Game.findById(gameId);
+
+    if(!game){
+      return res.status(404).json({ message: 'Game not found' });
+    }
+
+    // Check if the user is already in the game
+    const isUserAlreadyInGame = game.requests.find(request => request.userId.toString() === userId);
+    if (isUserAlreadyInGame) {
+      return res.status(400).json({ message: 'You have already requested to join this game' });
+    }
+
+    // Add the user to the requests array
+    game.requests.push({ userId, courtNumber });
+
+    await game.save();
+    res.status(200).json({ message: 'Game request sent successfully', game });
+
+
+
+  }
+  catch (error) {
+    console.error('❌ Error while requesting game:', error);
+    res.status(500).json({ message: 'Failed to request game' });
+  }
+});
+
+app.get('/games/:gameId/requests', async (req, res) => {
+  try {
+    const {gameId} = req.params;
+    const game = await Game.findById(gameId).populate({
+      path: 'requests.userId',
+      select: 'email firstName lastName image skill noOfGames playpals sports',
+    });
+
+    if (!game) {
+      return res.status(404).json({message: 'Game not found'});
+    }
+
+    const requestsWithUserInfo = game.requests.map(request => ({
+      userId: request.userId._id,
+      email: request.userId.email,
+      firstName: request.userId.firstName,
+      lastName: request.userId.lastName,
+      image: request.userId.image,
+      skill: request.userId.skill,
+      noOfGames: request.userId.noOfGames,
+      playpals: request.userId.playpals,
+      sports: request.userId.sports,
+      comment: request.comment,
+    }));
+
+    res.json(requestsWithUserInfo);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({message: 'Failed to fetch requests'});
   }
 });
