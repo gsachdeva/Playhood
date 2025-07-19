@@ -25,6 +25,7 @@ import CreateActivity from '../screens/CreateActivity';
 import TagVenueScreen from '../screens/TagVenueScreen';
 import SelectTimeScreen from '../screens/SelectTimeScreen';
 import GameSetUpScreen from '../screens/GameSetUpScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -115,6 +116,11 @@ const StackNavigator = () => {
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ForgotPassword"
+          component={ResetPasswordScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
