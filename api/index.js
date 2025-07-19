@@ -14,7 +14,7 @@ const Game = require('./models/game');
 const Venue = require('./models/venue');
 const game = require('./models/game');
 const moment = require('moment');
-const venues = require('../api/Constants/VenueData');
+const venues = require('../jsonfiles/venuedata'); // Importing venue data
 
 // Middleware
 app.use(cors());
@@ -145,6 +145,22 @@ app.post('/resetpassword', async (req, res) => {
   }
 });
 
+app.get('/user/:userId', async (req, res) => {
+  try {
+    const {userId} = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(500).json({message: 'User not found'});
+    }
+    console.log('User fetched:', user);
+    return res.status(200).json({user});
+  } catch (error) {
+    res.status(500).json({message: 'Error fetching the user details'});
+  }
+});
+
 async function addVenues() {
   try {
     let addedCount = 0;
@@ -153,7 +169,6 @@ async function addVenues() {
     for (const venue of venues) {
       // Check if venue with same name or fullLink exists
       const existingVenue = await Venue.findOne({ name: venue.name });
-
       if (existingVenue) {
         skippedCount++;
         continue;
@@ -174,6 +189,9 @@ addVenues().catch(err => {
 app.get('/venues', async (req, res) => {
   try {
     const venues = await Venue.find({});
+    if (!venues || venues.length === 0) {
+      return res.status(404).json({ message: 'No venues found' });
+    }
     res.status(200).json(venues);
   } catch (error) {
     console.error(error);

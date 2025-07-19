@@ -6,7 +6,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../AuthContext';
-import data from '../api/Constants/Data';
+import data from '../jsonfiles/homescreendata';
+import axios from 'axios';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -22,24 +23,17 @@ const HomeScreen = () => {
           <Text>Mohali</Text>
         </View>
       ),
-      headerRight: () => <HeaderRight handleLogout={handleLogout} />,
+      headerRight: () => <HeaderRight handleLogout={handleLogout} user={user}/>,
     });
   }, [navigation]);
 
 
- useEffect(() => {
-    const fetchUser = async () => {
-      const token = await AsyncStorage.getItem('token');
-      const decodedToken = jwtDecode(token);
-      const userId = decodedToken.userId;
-      setUserId(userId);
-    };
-
-    fetchUser();
-  }, []);
-    console.log('user', userId);
-
-     const fetchUser = async () => {
+  useEffect(() => {
+    if (userId) {
+      fetchUser();
+    }
+  }, [userId]);
+  const fetchUser = async () => {
     try {
       console.log('userID', userId);
       const response = await axios.get(`http://localhost:8000/user/${userId}`);
@@ -76,14 +70,14 @@ const HomeScreen = () => {
   );
 };
 
-const HeaderRight = ({handleLogout}) => (
+const HeaderRight = ({handleLogout,user}) => (
   <View style={{ marginRight: 10, flexDirection: 'row', gap: 10 }}>
     <Ionicons name="chatbox-outline" size={24} color="black" />
     <Ionicons name="notifications-outline" size={24} color="black" />
     <Pressable onPress={handleLogout}>
       <Image
         source={{
-          uri: 'https://cdn-icons-png.flaticon.com/128/4140/4140048.png'
+          uri: user.image || 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png', // Default image if user image is not available
         }}
         
         style={{ width: 24, height: 24, borderRadius: 15 }}
