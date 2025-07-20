@@ -148,9 +148,9 @@ app.post('/resetpassword', async (req, res) => {
 app.get('/user/:userId', async (req, res) => {
   try {
     const {userId} = req.params;
-
+    console.log('Fetching user with ID:', userId);
     const user = await User.findById(userId);
-
+  
     if (!user) {
       return res.status(500).json({message: 'User not found'});
     }

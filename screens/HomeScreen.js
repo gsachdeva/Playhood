@@ -1,5 +1,14 @@
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Pressable } from 'react-native';
-import React, { useLayoutEffect,useContext,useState,useEffect } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Pressable,
+  Alert,
+} from 'react-native';
+import React, { useLayoutEffect, useContext, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -11,11 +20,17 @@ import axios from 'axios';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const {token,setToken } = useContext(AuthContext);
-  const {userId, setUserId} = useContext(AuthContext);
   const [user, setUser] = useState('');
+  const { userId, loading, token,setToken,setUserId } = useContext(AuthContext);
 
+  useEffect(() => {
+    if (loading) return; // Don't fetch yet
+    if (!userId) return; // No user
+    // fetch user data here ...
+  }, [loading, userId]);
   useLayoutEffect(() => {
+    console.log('👤 User:', user);
+
     navigation.setOptions({
       headerTitle: '',
       headerLeft: () => (
@@ -23,40 +38,44 @@ const HomeScreen = () => {
           <Text>Mohali</Text>
         </View>
       ),
-      headerRight: () => <HeaderRight handleLogout={handleLogout} user={user}/>,
+      headerRight: () => (
+        console.log("Header Right Rendered"," User:", user.user.image),
+        <HeaderRight handleLogout={handleLogout} user={user} />
+      ),
     });
-  }, [navigation]);
-
+  }, [navigation, user]);
 
   useEffect(() => {
-    if (userId) {
-      fetchUser();
-    }
+    const fetchUserData = async () => {
+      try {
+        if (userId) {
+          const response = await axios.get(
+            `http://localhost:8000/user/${userId}`,
+          );
+          setUser(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
   }, [userId]);
-  const fetchUser = async () => {
-    try {
-      console.log('userID', userId);
-      const response = await axios.get(`http://localhost:8000/user/${userId}`);
-      setUser(response.data);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
- 
 
   const handleLogout = async () => {
-  try {
-    await AsyncStorage.removeItem('token');
-    console.log('🔓 Token cleared');
-    setToken(null);
-    navigation.navigate('Login');
-  } catch (error) {
-    console.error('Failed to clear token:', error);
-  }
-};
+    try {
+      // 1. Remove token from storage
+      await AsyncStorage.removeItem('token');
 
-
-
+      setToken(null); // Triggers <AuthStack /> to render
+      setUser(null);
+      setUserId(null);
+      Alert.alert('Logged Out', 'You have been successfully logged out.');
+    } catch (error) {
+      console.error('❌ Failed to clear token:', error);
+    }
+  };
+  if (loading) return <ActivityIndicator />;
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F8F8F8' }}>
       <View style={styles.container}>
@@ -70,16 +89,17 @@ const HomeScreen = () => {
   );
 };
 
-const HeaderRight = ({handleLogout,user}) => (
+const HeaderRight = ({ handleLogout, user }) => (
   <View style={{ marginRight: 10, flexDirection: 'row', gap: 10 }}>
     <Ionicons name="chatbox-outline" size={24} color="black" />
     <Ionicons name="notifications-outline" size={24} color="black" />
     <Pressable onPress={handleLogout}>
       <Image
         source={{
-          uri: user.image || 'https://cdn-icons-png.flaticon.com/128/3135/3135715.png', // Default image if user image is not available
+          uri: user.user.image.trim()
+            ? user.user.image
+            : 'https://cdn-icons-png.flaticon.com/128/16683/16683469.png',
         }}
-        
         style={{ width: 24, height: 24, borderRadius: 15 }}
       />
     </Pressable>
@@ -104,7 +124,10 @@ const GameAvailableSection = () => (
     <Text style={styles.textGreyBackground}>GEAR UP FOR YOUR GAME</Text>
     <View style={styles.rowContainer}>
       <Text style={styles.boldText}>Badminton Activity</Text>
-      <TouchableOpacity style={styles.viewButton} onPress={() => console.log('View All')}>
+      <TouchableOpacity
+        style={styles.viewButton}
+        onPress={() => console.log('View All')}
+      >
         <Text style={styles.text}>View</Text>
       </TouchableOpacity>
     </View>
@@ -114,7 +137,14 @@ const GameAvailableSection = () => (
 );
 
 const CorouselSection = () => (
-  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 ,marginTop: 10}}>
+  <View
+    style={{
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 10,
+      marginTop: 10,
+    }}
+  >
     <Pressable style={{ width: 180 }}>
       <View style={{ borderRadius: 10, overflow: 'hidden' }}>
         <Image
@@ -125,7 +155,9 @@ const CorouselSection = () => (
           resizeMode="cover"
         />
       </View>
-      <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
+      <View
+        style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}
+      >
         <Text style={{ fontWeight: 'bold' }}>Play</Text>
         <Text>Find Players and join their activities</Text>
       </View>
@@ -141,7 +173,9 @@ const CorouselSection = () => (
           resizeMode="cover"
         />
       </View>
-      <View style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}>
+      <View
+        style={{ backgroundColor: '#ffffff', padding: 10, borderRadius: 10 }}
+      >
         <Text style={{ fontWeight: 'bold' }}>Book</Text>
         <Text>Book your slots in nearby venues</Text>
       </View>
@@ -150,48 +184,68 @@ const CorouselSection = () => (
 );
 
 const BottomSection = () => (
-  <View style={[styles.bottomColumnContainer,{marginTop: 10,marginRight: 20}]}>
-  <View style={styles.bottomRowContainer}>
-    <View style={styles.iconCircle}>
-    <AntDesign name="addusergroup" size={24} color="green" />
+  <View
+    style={[styles.bottomColumnContainer, { marginTop: 10, marginRight: 20 }]}
+  >
+    <View style={styles.bottomRowContainer}>
+      <View style={styles.iconCircle}>
+        <AntDesign name="addusergroup" size={24} color="green" />
+      </View>
+      <View style={styles.bottomColumnContainer}>
+        <Text style={[styles.boldText, { marginLeft: 10 }]}>Groups</Text>
+        <Text style={[styles.subText, { marginLeft: 10 }]}>
+          Connect, Compete and Discuss
+        </Text>
+      </View>
     </View>
-    <View style={styles.bottomColumnContainer}>
-      <Text style={[styles.boldText, { marginLeft: 10 }]}>Groups</Text>
-      <Text style={[styles.subText, { marginLeft: 10 }]}>Connect, Compete and Discuss</Text>
-    </View>
-  </View>
 
-  <View style={styles.bottomRowContainer}>
-    <View style={styles.iconCircle2}>
-     <Ionicons name="tennisball-outline" size={24} color="black" />
+    <View style={styles.bottomRowContainer}>
+      <View style={styles.iconCircle2}>
+        <Ionicons name="tennisball-outline" size={24} color="black" />
+      </View>
+      <View flexDirection="column" style={styles.bottomColumnContainer}>
+        <Text style={[styles.boldText, { marginLeft: 10 }]}>
+          Game Time Activities
+        </Text>
+        <Text style={[styles.subText, { marginLeft: 10 }]}>
+          355 Playwood Hosted Games
+        </Text>
+      </View>
     </View>
-    <View flexDirection="column" style={styles.bottomColumnContainer}>
-      <Text style={[styles.boldText, { marginLeft: 10 }]}>Game Time Activities</Text>
-      <Text style={[styles.subText, { marginLeft: 10 }]}>355 Playwood Hosted Games</Text>
-    </View>
-  </View>
   </View>
 );
 
-const SpotlightSection =() => (
-  <View style={{padding:1}}>
-  <View style={{padding:10,backgroundColor:"white",borderRadius:10}}>
-  <Text style={{fontSize:16,fontWeight:"500",color:"#000",marginTop:10}}>Spotlight</Text>
-</View>
-  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
-   {data.map((item) => (
-  <Pressable key={item.id} style={{ marginBottom: 10 }}>
-    <Image
-      source={{ uri: item.image }}
-      style={styles.corouselImage}
-      resizeMode="cover"
-    />
-    <Text style={{ fontWeight: 'bold', marginTop: 5 }}>{item.text}</Text>
-    <Text>{item.description}</Text>
-  </Pressable>
-))}
-
-  </ScrollView>
+const SpotlightSection = () => (
+  <View style={{ padding: 1 }}>
+    <View style={{ padding: 10, backgroundColor: 'white', borderRadius: 10 }}>
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: '500',
+          color: '#000',
+          marginTop: 10,
+        }}
+      >
+        Spotlight
+      </Text>
+    </View>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={{ marginTop: 10 }}
+    >
+      {data.map(item => (
+        <Pressable key={item.id} style={{ marginBottom: 10 }}>
+          <Image
+            source={{ uri: item.image }}
+            style={styles.corouselImage}
+            resizeMode="cover"
+          />
+          <Text style={{ fontWeight: 'bold', marginTop: 5 }}>{item.text}</Text>
+          <Text>{item.description}</Text>
+        </Pressable>
+      ))}
+    </ScrollView>
   </View>
 );
 
@@ -204,44 +258,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F8F8',
     padding: 15,
   },
- rowContainer: {
-  width: '100%',               
-  backgroundColor: '#FFFFFF',
-  borderRadius: 10,
-  flexDirection: 'row',
-  justifyContent: 'space-between', 
-  alignItems: 'center',            
-  marginBottom: 10,
-  paddingHorizontal: 10,          
-  paddingVertical: 6,             
-},
+  rowContainer: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
   bottomRowContainer: {
-  width: '100%',
-  backgroundColor: '#FFFFFF',
-  borderRadius: 10,
-  flexDirection: 'row',
-  justifyContent: 'space-between', 
-  alignItems: 'center',
-  marginHorizontal: 10,
-  marginVertical: 10,
-},
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginVertical: 10,
+  },
   columnContainer: {
-  flex: 1,                  
-  width: '100%',            
-  justifyContent: 'center',
-  alignItems: 'flex-start',  
-  backgroundColor: '#FFFFFF',
-  padding: 10,
-  borderRadius: 10,
-},
-   bottomColumnContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    backgroundColor: '#FFFFFF',
+    padding: 10,
+    borderRadius: 10,
+  },
+  bottomColumnContainer: {
     flex: 1,
     alignItems: 'flex-start',
     justifyContent: 'center',
     flexDirection: 'column',
     backgroundColor: '#FFFFFF',
     padding: 10,
-    borderRadius: 10
+    borderRadius: 10,
   },
   icon: {
     width: 35,
@@ -316,21 +370,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   iconCircle: {
-  width: 50,
-  height: 50,
-  borderRadius: 20,             
-  backgroundColor: '#D4EDDA',  
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-iconCircle2: {
-  width: 50,
-  height: 50,
-  borderRadius: 20,             
-  backgroundColor: 'yellow',  
-  justifyContent: 'center',
-  alignItems: 'center',
-}
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: '#D4EDDA',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconCircle2: {
+    width: 50,
+    height: 50,
+    borderRadius: 20,
+    backgroundColor: 'yellow',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default HomeScreen;
