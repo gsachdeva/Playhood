@@ -14,7 +14,7 @@ import React, { useContext, useEffect ,useCallback} from 'react';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import Game from '../components/Game'; 
 import {AuthContext} from '../AuthContext';
 import UpcomingGame from '../components/UpcomingGame';
@@ -22,7 +22,10 @@ import UpcomingGame from '../components/UpcomingGame';
 import axios from 'axios';
 
 const PlayScreen = () => {
-  const [option, setOption] = useState('My Sports');
+  const route = useRoute();
+  const initialOption = route.params?.initialOption || 'My Sports'; // Default to 'My Sports'
+  const [option, setOption] = useState(initialOption);
+  const [loadingGames, setLoadingGames] = useState(true);
   const [sports, setSports] = useState('Badminton');
   const [games, setGames] = useState([]);
   const navigation = useNavigation();
@@ -38,7 +41,11 @@ const PlayScreen = () => {
       }
     }, [userId]),
   );
-
+  useEffect(() => {
+    if(initialOption) {
+      setOption(initialOption);
+    }
+  }, [initialOption]);
   useEffect(() => {{
     if (userId) {
       fetchUpcomingGames();

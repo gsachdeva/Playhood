@@ -419,17 +419,14 @@ app.post('/accept', async (req, res) => {
 app.get('/games/:gameId/players', async (req, res) => {
   try {
     const {gameId} = req.params;
-    console.log('Fetching players for gameId:', gameId);
     const game = await Game.findById(gameId).populate('players');
 
     console.log('Game found:', game);
     if (!game) {
-      console.error('Game not found for gameId:', gameId);
       return res.status(404).json({message: 'Game not found'});
     }
 
     if (!game.players || game.players.length === 0) {
-      console.error('No players found for gameId:', gameId);
       return res.status(404).json({message: 'No players found for this game'});
     }
     res.status(200).json(game.players);

@@ -130,7 +130,10 @@ const GameAvailableSection = () => (
       </TouchableOpacity>
     </View>
     <Text style={styles.greyText}>You have not games today</Text>
-    <Text style={styles.underLineText}>View My Calendar</Text>
+    <Pressable
+      onPress={() => navigation.navigate('Play',initialOption = "Calendar")}>
+        <Text style={styles.underLineText}>View My Calendar</Text>
+        </Pressable>
   </View>
 );
 
