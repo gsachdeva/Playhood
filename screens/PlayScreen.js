@@ -10,11 +10,11 @@ import {
   ScrollView,
   FlatList
 } from 'react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect ,useCallback} from 'react';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import Game from '../components/Game'; 
 import {AuthContext} from '../AuthContext';
 import UpcomingGame from '../components/UpcomingGame';
@@ -30,9 +30,14 @@ const PlayScreen = () => {
   const [upcomingGames, setUpcomingGames] = useState([]);
   const {userId} = useContext(AuthContext);
 
-  useEffect(() => {{
-    fetchGames();
-  }}, []);
+  useFocusEffect(
+    useCallback(() => {
+      if(userId){
+        console.log("🔄 Fetching games for user ID:", userId);
+        fetchGames();
+      }
+    }, [userId]),
+  );
 
   useEffect(() => {{
     if (userId) {
@@ -43,7 +48,7 @@ const PlayScreen = () => {
     try {
       console.log("Fetching upcoming games for user ID:", userId);
       const response = await axios.get(`http://localhost:8000/upcoming`, {
-      params: { userId: "6873bf1e1af08f0695caad4b" },
+      params: { userId: userId},
     });
       console.log("✅ Upcoming games fetched:", response);
       setUpcomingGames(response.data);

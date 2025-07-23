@@ -23,6 +23,8 @@ import moment from 'moment';
 import axios from 'axios';
 import { AuthContext } from '../AuthContext';
 import { useSelector, useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
   setSport,
   setArea,
@@ -43,7 +45,6 @@ const CreateActivity = () => {
   const [taggedVenue, setTaggedVenue] = useState(null);
   const { userId } = useContext(AuthContext);
 
-  console.log('userID', userId);
   const generateDates = () => {
     const dates = [];
     for (let i = 0; i < 10; i++) {
@@ -69,17 +70,12 @@ const CreateActivity = () => {
   };
   const dates = generateDates();
 
-  console.log('Dates', dates);
 
   const selectDate = date => {
     setModalVisible(false);
     setDate(date);
     dispatch(setDate(date));
-    console.log('Selected Date:', date);
   };
-
-  console.log(route.params);
-
   useEffect(() => {
     if (route.params?.timeInterval) {
       dispatch(setTimeInterval(route.params.timeInterval));
@@ -105,76 +101,46 @@ const CreateActivity = () => {
   console.log('userId', userId);
 
   console.log('taggedVenue', taggedVenue);
-  const createGame = async () => {
-  if (!sport.trim()) {
-    Alert.alert('Validation Error', 'Please enter a sport');
-    return;
-  }
-  if (!area.trim()) {
-    Alert.alert('Validation Error', 'Please enter an area or venue');
-    return;
-  }
-  if (!date) {
-    Alert.alert('Validation Error', 'Please select a date');
-    return;
-  }
-  if (!timeInterval) {
-    Alert.alert('Validation Error', 'Please select a time');
-    return;
-  }
-  if (!noOfPlayers || isNaN(noOfPlayers)) {
-    Alert.alert('Validation Error', 'Please enter a valid number of players');
-    return;
-  }
+   const createGame = async () => {
+    try {
+      const userId= await AsyncStorage.getItem('userId');
+      const admin = userId;
+      const time = timeInterval;
+      const gameData = {
+        sport,
+        area,
+        date,
+        time,
+        admin,
+        totalPlayers:noOfPlayers
+      };
 
-  try {
-    const gameData = {
-      sport,
-      area: taggedVenue ? taggedVenue : area,
-      date: date,
-      time: timeInterval, // backend expects "time"
-      admin: userId,
-      totalPlayers: noOfPlayers,
-      requests: [
-        {
-          userId: userId,
-          comment: 'I want to join this game',
-        },
-      ],
-    };
-
-    const response = await axios.post(
-      'http://localhost:8000/creategame',
-      gameData,
-    );
-
-    if (response.status === 200) {
-      Alert.alert('Success!', 'Game created successfully', [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
-    }
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Axios Error Response:', error.response?.data);
-      console.error('Axios Error Status:', error.response?.status);
-      console.error('Axios Error Message:', error.message);
-
-      Alert.alert(
-        'Error',
-        error.response?.data?.message || 'Something went wrong. Please try again.',
+      const response = await axios.post(
+        'http://localhost:8000/creategame',
+        gameData,
       );
-    } else {
-      console.error('Unknown Error:', error);
-      Alert.alert('Error', 'An unexpected error occurred.');
-    }
-  }
-};
+      console.log('Game created:', response.data);
+      if (response.status == 200) {
+        Alert.alert('Success!', 'Game created Succesfully', [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => navigation.navigate('Home')},
+        ]);
 
+        setSport('');
+        setArea('');
+        setDate('');
+        setTimeInterval('');
+      }
+      // Handle success or navigate to another screen
+    } catch (error) {
+      console.error('Failed to create game:', error);
+      // Handle error
+    }
+  };
   return (
     <>
       <SafeAreaView

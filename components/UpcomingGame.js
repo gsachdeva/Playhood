@@ -4,7 +4,7 @@ import {useNavigation} from '@react-navigation/native';
 
 const UpcomingGame = ({item}) => {
   const navigation = useNavigation();
-  console.log('isUserAdmin', item.isUserAdmin);
+  console.log('isUserAdmin', item);
   
   return (
     <Pressable
