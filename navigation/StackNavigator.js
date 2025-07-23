@@ -26,10 +26,12 @@ import TagVenueScreen from '../screens/TagVenueScreen';
 import SelectTimeScreen from '../screens/SelectTimeScreen';
 import GameSetUpScreen from '../screens/GameSetUpScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import ManageRequests from '../screens/ManageRequests';
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
+  
   const {token} = useContext(AuthContext)
   function BottomTabs() {
     return (
@@ -67,6 +69,7 @@ const StackNavigator = () => {
         />
         <Tab.Screen
           name="Book"
+          onPress={() => {navigator.na}}
           component={BookScreen}
           options={{
             tabBarActiveTintColor: 'green',
@@ -184,6 +187,12 @@ const StackNavigator = () => {
           component={GameSetUpScreen}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="Manage"
+          component={ManageRequests}
+          options={{ headerShown: false }}
+        />
+
       </Stack.Navigator>
     );
   }

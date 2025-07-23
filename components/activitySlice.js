@@ -41,3 +41,4 @@ export const {
 } = activitySlice.actions;
 
 export default activitySlice.reducer;
+export const selectActivity = (state) => state.activity;

@@ -34,13 +34,12 @@ const GameSetUpScreen = () => {
   const [venues, setVenues] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userRequested, setUserRequested] = useState(false);
-
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [players, setPlayers] = useState([]);
   console.log('userId', userId);
-
- 
-
   useEffect(() => {
-    if (route?.params?.item?.adminId === userId) {
+    console.log('Admin', route?.params?.item?.isUserAdmin);
+    if (route?.params?.item?.isUserAdmin) {
       setIsAdmin(true);
     }
   }, [route?.params?.item, userId]);
@@ -51,7 +50,7 @@ const GameSetUpScreen = () => {
         `http://localhost:8000/games/${gameId}/request`,
         {
           userId,
-          comment,
+          comment
         },
       );
 
@@ -73,38 +72,45 @@ const GameSetUpScreen = () => {
 
   const [requests, setRequests] = useState([]);
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
-
   const gameId = route?.params?.item?._id;
+  const currentUserId = userId;
+
+
+  useEffect(() => {
+  if (route?.params?.item?._id) {
+    console.log('🎯 Setting gameId from params:', route.params.item._id);
+    fetchRequests();
+  } else {
+    console.warn('⚠️ gameId not found in route params');
+  }
+}, [route?.params?.item?._id]);
+
 
   const fetchRequests = async () => {
+
     try {
+      console.log('Fetching requests for gameId:', gameId);
+      setLoadingRequests(true);
       const response = await axios.get(
         `http://localhost:8000/games/${gameId}/requests`,
       );
       setRequests(response.data);
-
-      const hasRequested = response.data.some(
-        req => req.userId === currentUserId,
-      );
-      setUserRequested(hasRequested);
     } catch (error) {
       console.error('Failed to fetch requests:', error);
+    } finally {
+      setLoadingRequests(false);
     }
   };
 
-  const [players, setPlayers] = useState([]);
 
   useEffect(() => {
-    // fetchPlayers();
-  }, []);
+     fetchPlayers();
+  }, [gameId]);
 
   const fetchPlayers = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/game/${gameId}/players`,
+        `http://localhost:8000/games/${gameId}/players`,
       );
       setPlayers(response.data);
     } catch (error) {
@@ -528,7 +534,6 @@ const GameSetUpScreen = () => {
                     <Pressable
                       onPress={() =>
                         navigation.navigate('Manage', {
-                          requests: requests,
                           userId: userId,
                           gameId: route?.params?.item?._id,
                         })

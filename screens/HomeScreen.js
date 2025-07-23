@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Pressable,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useLayoutEffect, useContext, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -29,8 +30,6 @@ const HomeScreen = () => {
     // fetch user data here ...
   }, [loading, userId]);
   useLayoutEffect(() => {
-    console.log('👤 User:', user);
-
     navigation.setOptions({
       headerTitle: '',
       headerLeft: () => (
@@ -39,7 +38,6 @@ const HomeScreen = () => {
         </View>
       ),
       headerRight: () => (
-        console.log("Header Right Rendered"," User:", user.user.image),
         <HeaderRight handleLogout={handleLogout} user={user} />
       ),
     });
@@ -96,8 +94,8 @@ const HeaderRight = ({ handleLogout, user }) => (
     <Pressable onPress={handleLogout}>
       <Image
         source={{
-          uri: user.user.image.trim()
-            ? user.user.image
+          uri: user?.user?.image.trim()
+            ? user?.user?.image
             : 'https://cdn-icons-png.flaticon.com/128/16683/16683469.png',
         }}
         style={{ width: 24, height: 24, borderRadius: 15 }}
