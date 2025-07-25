@@ -27,6 +27,9 @@ import SelectTimeScreen from '../screens/SelectTimeScreen';
 import GameSetUpScreen from '../screens/GameSetUpScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import ManageRequests from '../screens/ManageRequests';
+import SlotScreen from '../screens/SlotScreen';
+import PaymentScreen from '../screens/PaymentScreen';
+import PlayersScreen from '../screens/PlayersScreen';
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -192,6 +195,23 @@ const StackNavigator = () => {
           component={ManageRequests}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="Slot"
+          component={SlotScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Payment"
+          component={PaymentScreen}
+          options={{headerShown:false}}
+        >
+        </Stack.Screen>
+        <Stack.Screen
+          name="Players"
+          component={PlayersScreen}
+          options={{headerShown:false}}
+        >
+        </Stack.Screen>
 
       </Stack.Navigator>
     );
