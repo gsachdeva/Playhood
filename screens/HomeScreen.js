@@ -17,6 +17,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../AuthContext';
 import data from '../jsonfiles/homescreendata';
+import 'core-js/stable/atob';
 import axios from 'axios';
 
 const HomeScreen = () => {
@@ -134,7 +135,7 @@ const GameAvailableSection = () => (
   </View>
 );
 
-const CorouselSection = () => (
+const CorouselSection = (navigation) => (
   <View
     style={{
       flexDirection: 'row',
@@ -161,7 +162,9 @@ const CorouselSection = () => (
       </View>
     </Pressable>
 
-    <Pressable style={{ width: 180 }}>
+    <Pressable 
+      onPress={() => navigation.navigate('Play')}
+    style={{ width: 180 }}>
       <View style={{ borderRadius: 10, overflow: 'hidden' }}>
         <Image
           source={{

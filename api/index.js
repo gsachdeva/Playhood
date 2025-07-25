@@ -382,22 +382,13 @@ app.get('/games/:gameId/requests', async (req, res) => {
 app.post('/accept', async (req, res) => {
   const {gameId, userId} = req.body;
 
-  console.log('user', userId);
-
-  console.log('heyy', gameId);
-
   try {
-    // Find the game
     const game = await Game.findById(gameId);
     if (!game) {
       return res.status(404).json({message: 'Game not found'});
     }
 
     game.players.push(userId);
-
-    // Remove the user from the requests array
-    // game.requests.splice(requestIndex, 1);
-
     await Game.findByIdAndUpdate(
       gameId,
       {
@@ -436,5 +427,66 @@ app.get('/games/:gameId/players', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({message: 'Failed to fetch players'});
+  }
+});
+
+app.post('/book', async (req, res) => {
+  const {courtNumber, date, time, userId, name, game} = req.body;
+
+  console.log('game', game);
+
+  try {
+    const venue = await Venue.findOne({name: name});
+    if (!venue) {
+      return res.status(404).json({message: 'Venue not found'});
+    }
+
+    // console.log('Venue', venue);
+    // Check for booking conflicts
+    const bookingConflict =
+      venue.bookings &&
+      venue.bookings.find(
+        booking =>
+          booking.courtNumber === courtNumber &&
+          booking.date === date &&
+          booking.time === time,
+      );
+    if (bookingConflict) {
+      return res.status(400).json({message: 'Slot already booked'});
+    }
+    // Add new booking
+    venue.bookings.push({courtNumber, date, time, user: userId, game});
+
+    await venue.save();
+
+    await Game.findByIdAndUpdate(game, {
+      isBooked: true,
+      courtNumber: courtNumber,
+    });
+    res.status(200).json({message: 'Booking successful', venue});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message: 'Server error'});
+  }
+});
+
+app.post('/toggle-match-full', async (req, res) => {
+  try {
+    const { gameId } = req.body;
+
+    // Find the game by its ID
+    const game = await Game.findById(gameId);
+    if (!game) {
+      return res.status(404).json({ message: 'Game not found' });
+    }
+
+    // Toggle the matchFull status
+    game.matchFull = !game.matchFull;
+    await game.save();
+
+    res.json({ message: 'Match full status updated', matchFull: game.matchFull });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update match full status' });
   }
 });
