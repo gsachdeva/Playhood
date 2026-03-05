@@ -29,8 +29,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # ✅ Fix: Install exact NDK version matching your project
-      - name: 🔧 Setup Android NDK 27.1.12297006
+      - name: 🔧 Setup Android SDK & NDK
         run: |
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "ndk;27.1.12297006" \
@@ -53,12 +52,21 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/playhood-release.keystore
 
+      - name: 🔧 Generate Codegen for native libraries
+        working-directory: android
+        run: ./gradlew generateCodegenArtifactsFromSchema
+
+      - name: 🔧 Pre-build native dependencies
+        working-directory: android
+        run: |
+          ./gradlew :react-native-vector-icons:buildCMakeRelWithDebInfo || true
+          ./gradlew :react-native-async-storage_async-storage:buildCMakeRelWithDebInfo || true
+          ./gradlew :react-native-community_datetimepicker:buildCMakeRelWithDebInfo || true
+
       - name: 🔨 Build Release APK
         working-directory: android
-        env:
-          ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/27.1.12297006
         run: |
-          ./gradlew clean assembleRelease \
+          ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=app/playhood-release.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
