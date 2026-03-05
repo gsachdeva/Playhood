@@ -76,3 +76,5 @@ yarn-error.log
 
 # dotenv environment variables file
 .env
+playhood-keystore-base64.txt
+.env.pub
