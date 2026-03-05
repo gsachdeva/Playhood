@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:137726462669:android:a335a0c6333850d30d3784",
+        "mobilesdk_app_id": "1:137726462669:android:4d96b47c7830fc7f0d3784",
         "android_client_info": {
-          "package_name": "com.playhood"
+          "package_name": "com.playhoodapp"
         }
       },
       "oauth_client": [],
