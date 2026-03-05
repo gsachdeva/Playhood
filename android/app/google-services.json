@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "137726462669",
+    "project_id": "playhood-2f0f4",
+    "storage_bucket": "playhood-2f0f4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:137726462669:android:a335a0c6333850d30d3784",
+        "android_client_info": {
+          "package_name": "com.playhood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo-S1I1d11dsuP-SE0pwGAery1e9DrMnE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
